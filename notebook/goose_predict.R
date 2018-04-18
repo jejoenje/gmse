@@ -1,5 +1,6 @@
 ### Last edit 18/4/2018
-
+### Second edit
+### Third edit
 
 logit <- function(p){
     size <- length(p);
