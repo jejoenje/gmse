@@ -336,8 +336,8 @@ gmse_goose_multiplot <- function(data_file = "toy_data.csv", proj_yrs,
     box();
     points(x = yrs[obsrvd], y = NN[obsrvd], cex = 1.25, pch = 20, type = "b");
     abline(h = manage_target, lwd = 0.8, lty = "dotted");
-    text(x = dat[5,1], y = max(NN), labels = "Observed", cex = 2.5);
-    text(x = pry[5], y = max(NN), labels = "Projected", cex = 2.5);
+    text(x = dat[5,1], y = max(NN), labels = "Observed", cex = 1.75);
+    text(x = pry[length(pry)], y = max(NN), labels = "Projected", cex = 1.75, pos = 2);
     for(i in 1:length(goose_multidata)){
         goose_data <- goose_multidata[[i]];
         dat <- goose_data[-1,];
