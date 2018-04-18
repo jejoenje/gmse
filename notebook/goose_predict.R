@@ -303,9 +303,9 @@ gmse_goose <- function(data_file = "toy_data.csv", manage_target, max_HB,
 }
 
 
-gmse_goose_multiplot <- function(data_file = "toy_data.csv", proj_yrs = 10, 
-                                 obs_error = 1438.614, manage_target = 26000, 
-                                 max_HB = 1200, iterations = 10, 
+gmse_goose_multiplot <- function(data_file = "toy_data.csv", proj_yrs, 
+                                 obs_error = 1438.614, manage_target, 
+                                 max_HB, iterations, 
                                  use_est = "normal"){
     goose_multidata <- NULL;
     for(i in 1:iterations){
