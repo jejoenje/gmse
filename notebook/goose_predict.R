@@ -94,6 +94,12 @@ get_goose_paras <- function(data, init_params = NULL){
     get_parameters <- optim(par = init_params, fn = goose_growth, data = data,
                             method = "BFGS", control = contr_paras, 
                             hessian = TRUE);
+    if(exists("progress_i")) {
+        progress_i <- progress_i+1
+        assign("progress_i", progress_i, envir = globalenv())
+        print(progress_i)
+        progress$set(value = progress_i)
+    }
     return(get_parameters);
 }
 
