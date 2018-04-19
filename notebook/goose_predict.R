@@ -97,7 +97,6 @@ get_goose_paras <- function(data, init_params = NULL){
     if(exists("progress_i")) {
         progress_i <- progress_i+1
         assign("progress_i", progress_i, envir = globalenv())
-        print(progress_i)
         progress$set(value = progress_i)
     }
     return(get_parameters);
@@ -414,6 +413,14 @@ gmse_print_multiplot <- function(goose_multidata, manage_target, proj_yrs,
     }
 }
 
+gmse_goose_summarise <- function(multidat) {
+    end_NN <- unlist(lapply(multidat, function(x) x$y[which.max(x$Year)]))
+    return(list(end_min=min(end_NN), 
+                end_max=max(end_NN),
+                end_mean=mean(end_NN),
+                all_NN=end_NN
+                ))
 
+}
 
 
