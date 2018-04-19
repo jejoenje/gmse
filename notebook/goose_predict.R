@@ -415,7 +415,8 @@ gmse_print_multiplot <- function(goose_multidata, manage_target, proj_yrs,
 
 gmse_goose_summarise <- function(multidat) {
     end_NN <- unlist(lapply(multidat, function(x) x$y[which.max(x$Year)]))
-    return(list(end_min=min(end_NN), 
+    return(list(end_yr=max(sims[[1]]$Year),
+                end_min=min(end_NN), 
                 end_max=max(end_NN),
                 end_mean=mean(end_NN),
                 all_NN=end_NN
