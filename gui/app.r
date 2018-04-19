@@ -6,11 +6,11 @@ input_name <- '~/Dropbox/Islay_goose_data_from_Tom_Jan_2018/Dataset/toy_data.csv
 
 progress_i <- 0
 assign("progress_i", progress_i, envir = globalenv())
-
 updateProgress <- function() {
     value <- progress$getValue()
     value <- value + (progress$getMax() - value) / 5
 }
+
 
 ui <- fluidPage(
   
@@ -64,12 +64,11 @@ ui <- fluidPage(
                  br(),
                  actionButton('done', 'Go to output')
                  ),
-        tabPanel(title = "Output", value = "out_tab", 
-                    "This is a test",
-                    br(),
-                    plotOutput('plot', height='500px')
-                 ),
-        tabPanel(title = "Panel 3", value = "panel3", "Panel 3 content")
+        tabPanel(title = "Output", value = "out_tab",
+                    plotOutput('plot', height='500px'),
+                    textOutput('text_summary')
+                 )
+
       )
     )
   )
@@ -78,24 +77,45 @@ ui <- fluidPage(
 
 server <- function(session, input, output) {
   
+  
+  observeEvent(input$run_in, {
+     updateTabsetPanel(session=session, inputId="inTabset", selected="out_tab")
+    })
+            
   observeEvent(input$done, updateTabsetPanel(session=session, inputId="inTabset", selected="out_tab"))
-    
-  calcPlot <- eventReactive(input$run_in, {
-    progress_i <- 0
 
+  calcPlot <- eventReactive(input$run_in, {
+    
+    updateTabsetPanel(session=session, inputId="inTabset", selected="out_tab")
+
+    progress_i <- 0
+    assign("progress_i", progress_i, envir = globalenv())
     progress$initialize(min = 0, max = input$sims_in*(input$yrs_in+1))
     on.exit(progress$close())
     assign("progress", progress, envir = globalenv())
     
     progress$set(message = "Running simulations...", value = 0)
     
-    gmse_goose_multiplot(data_file=input_name, iterations=input$sims_in, proj_yrs = input$yrs_in, max_HB=input$maxHB_in, manage_target = input$target_in)
-    
+    sims <- gmse_goose_multiplot(data_file=input_name, 
+                         iterations=input$sims_in, 
+                         proj_yrs = input$yrs_in, 
+                         max_HB=input$maxHB_in, 
+                         manage_target = input$target_in)
+
   })
   
   output$plot <- renderPlot({
     calcPlot()
   })
+  
+  output$text_summary <- renderText({
+      "The summarised results are as follows:",
+      gmse_goose_summarise(sims)$end_yr
+      # p("In", gmse_goose_summarise(sims)$end_yr, ", the goose population is projected to be between",
+      #   floor(gmse_goose_summarise(sims)$end_min),"and", floor(gmse_goose_summarise(sims)$end_max)) 
+  })
+  
+
 }
 
 shinyApp(ui = ui, server = server)
