@@ -222,7 +222,7 @@ sim_goose_data <- function(gmse_results, goose_data){
     return(new_dat);
 }
 
-gmse_goose <- function(data_file = "toy_data.csv", manage_target, max_HB, 
+gmse_goose <- function(data_file, manage_target, max_HB, 
                        obs_error = 1438.614, years, use_est = "normal",
                        plot = TRUE){
     # -- Initialise ------------------------------------------------------------
@@ -308,12 +308,14 @@ gmse_goose <- function(data_file = "toy_data.csv", manage_target, max_HB,
 }
 
 
-gmse_goose_multiplot <- function(data_file = "toy_data.csv", proj_yrs, 
+gmse_goose_multiplot <- function(data_file, proj_yrs, 
                                  obs_error = 1438.614, manage_target, 
                                  max_HB, iterations, 
                                  use_est = "normal"){
+    
     goose_multidata <- NULL;
     for(i in 1:iterations){
+        
         goose_multidata[[i]] <- gmse_goose(data_file = data_file,
                                            obs_error = obs_error,
                                            years = proj_yrs,
