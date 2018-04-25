@@ -1,3 +1,21 @@
+library(GMSE)
+library(tools)
+library(readxl)
+
+load_input <- function(in_name) {
+    ext <- file_ext(in_name)
+    if(ext=='csv' | ext=='.CSV') {
+        return(read.csv(in_name))
+    }
+    if(ext=='xls' | ext=='XLS') {
+        return(as.data.frame(read_xls(in_name)))
+    }
+    if(ext=='xlsx' | ext=='XLSX') {
+        return(as.data.frame(read_xlsx(in_name, sheet=1)))
+    }
+    stop('File loading failed, file type not recognised (.csv, .xls, or .xlsx only')
+}
+
 
 logit <- function(p){
     size <- length(p);
@@ -32,15 +50,15 @@ goose_rescale_AIG <- function(data, years = 22){
 
 goose_clean_data <- function(file){
   
-    data   <- read.csv(file);                # Load dataset
+    data   <- load_input(file);              # Load dataset
     data$y <- data$Count+data$IslayCull;     # Count data + culled
     data   <- goose_rescale_AIG(data = data, years = 22);
   
-    data$AugTemp   <- as.numeric( scale(data$AugTemp) );
-    data$IslayTemp <- as.numeric( scale(data$IslayTemp) );
-    data$AugRain   <- as.numeric( scale(data$AugRain) );
-    data$AIG.sc    <- as.numeric( scale(data$AIG) );
-    data$HB        <- data$IcelandCull+data$GreenlandCull;
+    data$AugTemp   <- as.numeric( scale(data$AugTemp) )
+    data$IslayTemp <- as.numeric( scale(data$IslayTemp) )
+    data$AugRain   <- as.numeric( scale(data$AugRain) )
+    data$AIG.sc    <- as.numeric( scale(data$AIG) )
+    data$HB        <- data$IcelandCull+data$GreenlandCull
   
     return(data);
 }  
