@@ -3,17 +3,23 @@ library(tools)
 library(readxl)
 
 load_input <- function(in_name) {
-    ext <- file_ext(in_name)
-    if(ext=='csv' | ext=='.CSV') {
-        return(read.csv(in_name))
+
+    if(is.null(in_name)) { 
+        stop('Please choose a base data file.') 
+    } else {
+        ext <- file_ext(in_name)
+        if(ext=='csv' | ext=='.CSV') {
+            return(read.csv(in_name))
+        }
+        if(ext=='xls' | ext=='XLS') {
+            return(as.data.frame(read_xls(in_name)))
+        }
+        if(ext=='xlsx' | ext=='XLSX') {
+            return(as.data.frame(read_xlsx(in_name, sheet=1)))
+        }
+        stop('File loading failed, file type not recognised (.csv, .xls, or .xlsx only')
     }
-    if(ext=='xls' | ext=='XLS') {
-        return(as.data.frame(read_xls(in_name)))
-    }
-    if(ext=='xlsx' | ext=='XLSX') {
-        return(as.data.frame(read_xlsx(in_name, sheet=1)))
-    }
-    stop('File loading failed, file type not recognised (.csv, .xls, or .xlsx only')
+
 }
 
 
@@ -433,13 +439,41 @@ gmse_print_multiplot <- function(goose_multidata, manage_target, proj_yrs,
     }
 }
 
-gmse_goose_summarise <- function(multidat) {
+gmse_goose_summarise <- function(multidat, input) {
+    
+    orig_data <- goose_clean_data(input$input_name$datapath)
+    last_obs_yr <- max(orig_data$Year)
+    proj_y <- lapply(multidat, function(x) x$y[x$Year>last_obs_yr+1])
+    proj_y <- do.call(rbind, proj_y)
+    proj_HB <- lapply(multidat, function(x) x$HB[x$Year>last_obs_yr+1])
+    proj_HB <- do.call(rbind, proj_HB)
+    
     end_NN <- unlist(lapply(multidat, function(x) x$y[which.max(x$Year)]))
-    return(list(end_yr=max(sims[[1]]$Year),
-                end_min=min(end_NN), 
-                end_max=max(end_NN),
-                end_mean=mean(end_NN),
-                all_NN=end_NN
+    end_yr <- max(sims[[1]]$Year)
+    target_overlap <- input$target_in>apply(proj_y,2,min) & input$target_in<apply(proj_y,2,max)
+    proj_y_mn <- apply(proj_y,2,mean)
+    
+    if(sum(target_overlap)==0) {
+        first_overlap <- NA
+    } else {
+        first_overlap=min(((last_obs_yr+1):end_yr)[target_overlap])
+    }
+    
+    return(list(end_yr=end_yr,                     # Last projected year
+                end_min=min(end_NN),               # Minimum pop size in last projected year
+                end_max=max(end_NN),               # Maximum pop size in last projected year
+                end_mean=mean(end_NN),             # Mean pop size in last projected year
+                all_NN=end_NN,                     # All population sizes in last projected year (across sims)
+                proj_y_mn=proj_y_mn,               # Mean projected population size in each year (across sims)
+                last_obs_yr=last_obs_yr,           # Last observed year
+                proj_y=proj_y,                     # All projected population sizes (rows are sims, cols are years)
+                proj_HB=proj_HB,                   # As above but for hunting bag (number culled)
+                target_overlap=target_overlap,     # Logical: does range of pop sizes across sims overlap the target
+                first_overlap=first_overlap,       # Year of first overlap for above
+                mean_HB=apply(proj_HB, 2, mean),   # Mean number culled in each projected year across sims
+                sd_HB=apply(proj_HB, 2, sd),       # SD of above
+                min_HB=apply(proj_HB, 2, min),     # Minimum of above
+                max_HB=apply(proj_HB, 2, max)      # Maximum of above
                 ))
 
 }
