@@ -1,10 +1,12 @@
 library(shiny)
+library(DT)
 
-source('notebook/goose_predict.R')
+source('../notebook/goose_predict.R')
 #rm(sims) # Housekeeping for testing
 
+
 ### for testing only:
-# input <- list(input_name=data.frame(datapath=as.vector('~/Documents/toy_data.csv')), sims_in=2, yrs_in=2, maxHB_in=2000, target_in=25000)
+# input <- list(input_name=data.frame(datapath=as.vector('~/Documents/toy_data.csv')), sims_in=10, yrs_in=10, maxHB_in=2000, target_in=25000)
 # input$input_name$datapath <- as.vector(input$input_name$datapath)
 
 progress_i <- 0
@@ -19,6 +21,20 @@ valInput <- function(val_filename) {
     return(validate_input(val_file))
 }
 
+cull_table_format <- htmltools::withTags(table(
+    class = 'display',
+    thead(
+        tr(
+            th('Year'),
+            th('Projected mean populaton size'),
+            th('Mean culled'),
+            th('SD culled'),
+            th('Min. culled'),
+            th('Max. culled')
+        )
+    )
+))
+
 
 ui <- fluidPage(
   
@@ -28,7 +44,7 @@ ui <- fluidPage(
   
   sidebarLayout(
     sidebarPanel(
-      
+      br(),
       fileInput("input_name", "Choose data file (XLS, XLSX or CSV)",
                 accept = c("application/vnd.ms-excel", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", ".xls", ".xlsx",
                     "text/csv",
@@ -49,7 +65,11 @@ ui <- fluidPage(
       sliderInput("maxHB_in", "Max. cull per year:",
                   min = 0, max = 10000, value = 2000, step = 1000),
     
-      actionButton('run_in', 'Run simulations')
+      actionButton('run_in', 'Run simulations'),
+      br(),
+      br(),
+      br(),
+      img(src = "GMSE_logo_name.png", width='90%')
       
     ),
     
@@ -81,6 +101,7 @@ ui <- fluidPage(
         tabPanel(title = "Help", value = "help_tab", 
                  h3("Extra help for running Goose-GMSE simulations"),
                  br(),
+                 p("The text below needs editing and expanding", style = "color:red; font-weight: bold"),
                  strong("Key points to note:"),
                  p(),
                  tags$ul(
@@ -89,19 +110,29 @@ ui <- fluidPage(
                              uncertainty regarding future environmental conditions. Thus, it should be noted that the output and any inferences from 
                              them are stochastic (i.e. contain a degree of uncertainty).", strong("Thus, any interpretation and recommendations derived
                              from this output should take account of this uncertainty: neither the projected population sizes nor the numbers culled should be 
-                             taken as absolute recommendation.")), 
+                     )        taken as absolute recommendation.")), 
                      tags$li("Third list item")
                  )
                  ),
-        tabPanel(title = "Output", value = "out_tab",
+        tabPanel(title = "Output: summary", value = "out_tab",
                     plotOutput('plot', height='500px'),
                     htmlOutput('text_summary')
+                 ),
+        tabPanel(title = "Output: culls", value = "out_tab2",
+                 DT::dataTableOutput('out_culls')
+                 ),
+        tabPanel(title = "Output: all", value = "out_tab3",
+                 ""
+                 #tableOutput('out_all')
                  )
+        
+        )
+        
 
       )
     )
   )
-) 
+
 
 
 server <- function(session, input, output) {
@@ -113,16 +144,15 @@ server <- function(session, input, output) {
   observeEvent(input$done, updateTabsetPanel(session=session, inputId="inTabset", selected="out_tab"))
 
   calcPlot <- eventReactive(input$run_in, {
-    
+
     validate(
-        need(try(input$input_name), "Please load a base data file")
-        #need(try(valInput(input$input_name$datapath)), 'File validation failed: please check formatting')
+        need(try(input$input_name), "Please select a base data input file first.")
     )
     
     updateTabsetPanel(session=session, inputId="inTabset", selected="out_tab")
 
     progress_i <- 0
-    assign("progress_i", progress_i, envir = globalenv())
+    assign("progress_i", progress_i, envir = globalenv()) 
     progress <- shiny::Progress$new(session = session, min = 0, max = input$sims_in*(input$yrs_in+1))
     on.exit(progress$close())
     assign("progress", progress, envir = globalenv())
@@ -130,36 +160,68 @@ server <- function(session, input, output) {
     progress$set(message = "Running simulations...", value = 0)
     
     sims <- gmse_goose_multiplot(
-                         data_file=input$input_name$datapath, 
-                         iterations=input$sims_in, 
-                         proj_yrs = input$yrs_in, 
-                         max_HB=input$maxHB_in, 
-                         manage_target = input$target_in)
+        data_file=input$input_name$datapath, 
+        iterations=input$sims_in, 
+        proj_yrs = input$yrs_in, 
+        max_HB=input$maxHB_in, 
+        manage_target = input$target_in)
     assign("sims", sims, envir = globalenv())
-    
+
+
   })
   
-  genSummaryText <- eventReactive(input$run_in, {
-      validate(
-          need(try(sims), "Simulations not yet run")
-      )
-      res <- gmse_goose_summarise(sims)
-      orig_data <- goose_clean_data(input$input_name$datapath)
-      last_obs_yr <- max(orig_data$Year)
-      
-      tags$ul(
-          tags$li(paste("In", res$end_yr,"projected population size was between", floor(res$end_min), "and", floor(res$end_max), "individuals.") ),
-          tags$li(paste("The projected population in ", res$end_yr, 
-                        switch(as.character(res$end_min<input$target_in & res$end_max>input$target_in), 'TRUE'='does', 'FALSE'='does not'),
-                        "overlap with the population target of", input$target_in
-                        )),
-          tags$li(paste("After ", res$end_yr-last_obs_yr, "projected years, the mean population size is predicted to be", 
-                        floor(res$end_mean)-input$target_in, "individuals", 
-                        switch(as.character(sign(floor(res$end_mean)-input$target_in)), "-1"="below", "1"="above"), 
-                        "the population target of", input$target_in))
-      )
-      
-
+  genSummaryText <- eventReactive(input$run_in, { 
+    if(!exists("sims")) {
+        div(
+            "Please load a base data file (see 'Help' for more info)"
+        )
+    } else {
+        res <- gmse_goose_summarise(sims, input)
+        
+        if(is.na(res$first_overlap)) {
+            first_overlap <- paste("The projected population does not overlap the target in any of the projected years")
+        } else {
+            first_overlap <- paste("The range of projected population sizes overlapped the target of", 
+                                   input$target_in, "individuals in", sum(res$target_overlap), "out of", res$end_yr-res$last_obs_yr, "projected years.",
+                                   "The first year in which the range of projected population sizes overlapped with the population target was", res$first_overlap)
+        }
+        
+        p1 <- paste("In", res$end_yr,"the projected population size was between", floor(res$end_min), "and", floor(res$end_max), "individuals.") 
+        p2 <- paste("The projected population in ", res$end_yr, 
+                    switch(as.character(res$end_min<input$target_in & res$end_max>input$target_in), 'TRUE'='does', 'FALSE'='does not'),
+                    "overlap with the population target of", input$target_in
+        )
+        p3 <- paste("After ", res$end_yr-res$last_obs_yr, "projected years, the mean population size is predicted to be", 
+                    abs(floor(res$end_mean)-input$target_in), "individuals", 
+                    switch(as.character(sign(floor(res$end_mean)-input$target_in)), "-1"="below", "1"="above"), 
+                    "the population target of", input$target_in
+        )
+        p4 <- first_overlap
+        
+        div(
+            h4("Summarised simulation results"),
+            tags$ul(
+                tags$li(p1),
+                tags$li(p2),
+                tags$li(p3),
+                tags$li(p4, style = "color:red; font-weight: bold")
+            )
+        )
+    }
+  })
+  
+  cullTable <- eventReactive(input$run_in, { 
+    res <- gmse_goose_summarise(sims, input)    
+    cull_summary <- cbind( ((res$last_obs_yr+1):(res$last_obs_yr+input$yrs_in)) , 
+                          floor(res$proj_y_mn),
+                          floor(res$mean_HB), 
+                          floor(res$sd_HB), 
+                          floor(res$min_HB), 
+                          floor(res$max_HB))
+    cull_summary <- as.data.frame(cull_summary)
+    coln <- c('Year','Projected mean populaton size','Mean culled','SD culled','Min. culled','Max. culled')
+    
+    datatable(cull_summary, colnames=coln, rownames=FALSE, options = list(dom = 't'))
   })
   
   output$plot <- renderPlot({
@@ -170,6 +232,13 @@ server <- function(session, input, output) {
     genSummaryText()
   })
   
+  output$out_culls <- renderDataTable({
+    cullTable()
+  })
+  
+  output$out_all <- renderTable({
+    allTable()
+  })
 
 }
 
