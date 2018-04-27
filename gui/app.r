@@ -1,12 +1,11 @@
+rm(list=ls()) # Housekeeping for testing
 library(shiny)
 library(DT)
 
 source('../notebook/goose_predict.R')
-#rm(sims) # Housekeeping for testing
-
 
 ### for testing only:
-# input <- list(input_name=data.frame(datapath=as.vector('~/Documents/toy_data.csv')), sims_in=10, yrs_in=10, maxHB_in=2000, target_in=25000)
+# input <- list(input_name=data.frame(datapath=as.vector('~/Documents/toy_data.csv')), sims_in=5, yrs_in=5, maxHB_in=2000, target_in=26000)
 # input$input_name$datapath <- as.vector(input$input_name$datapath)
 
 progress_i <- 0
@@ -116,10 +115,11 @@ ui <- fluidPage(
                  ),
         tabPanel(title = "Output: summary", value = "out_tab",
                     plotOutput('plot', height='500px'),
-                    htmlOutput('text_summary')
+                    htmlOutput('text_summary'),
+                    dataTableOutput('out_culls')
                  ),
         tabPanel(title = "Output: culls", value = "out_tab2",
-                 DT::dataTableOutput('out_culls')
+                 dataTableOutput('out_culls2')
                  ),
         tabPanel(title = "Output: all", value = "out_tab3",
                  ""
@@ -137,20 +137,21 @@ ui <- fluidPage(
 
 server <- function(session, input, output) {
   
+  ### Switch to main output tab when run button is pressed
   observeEvent(input$run_in, {
      updateTabsetPanel(session=session, inputId="inTabset", selected="out_tab")
     })
-            
-  observeEvent(input$done, updateTabsetPanel(session=session, inputId="inTabset", selected="out_tab"))
 
+  ### calcPlot() runs when run button is pressed.
+  ### Runs main simulations (gmse_goose_multiplot() given input variables)
   calcPlot <- eventReactive(input$run_in, {
 
     validate(
         need(try(input$input_name), "Please select a base data input file first.")
     )
-    
-    updateTabsetPanel(session=session, inputId="inTabset", selected="out_tab")
 
+    #updateTabsetPanel(session=session, inputId="inTabset", selected="out_tab")
+    
     progress_i <- 0
     assign("progress_i", progress_i, envir = globalenv()) 
     progress <- shiny::Progress$new(session = session, min = 0, max = input$sims_in*(input$yrs_in+1))
@@ -165,11 +166,14 @@ server <- function(session, input, output) {
         proj_yrs = input$yrs_in, 
         max_HB=input$maxHB_in, 
         manage_target = input$target_in)
+    
     assign("sims", sims, envir = globalenv())
 
-
+    
   })
   
+  ### genSummaryText() runs when run button is pressed.
+  ### Generates summary output text from simulations.
   genSummaryText <- eventReactive(input$run_in, { 
     if(!exists("sims")) {
         div(
@@ -199,8 +203,8 @@ server <- function(session, input, output) {
         p4 <- first_overlap
         
         div(
-            h4("Summarised simulation results"),
             tags$ul(
+                h4("Summarised simulation results", style='align=left'),
                 tags$li(p1),
                 tags$li(p2),
                 tags$li(p3),
@@ -210,18 +214,25 @@ server <- function(session, input, output) {
     }
   })
   
-  cullTable <- eventReactive(input$run_in, { 
-    res <- gmse_goose_summarise(sims, input)    
-    cull_summary <- cbind( ((res$last_obs_yr+1):(res$last_obs_yr+input$yrs_in)) , 
-                          floor(res$proj_y_mn),
-                          floor(res$mean_HB), 
-                          floor(res$sd_HB), 
-                          floor(res$min_HB), 
-                          floor(res$max_HB))
+  ### cullTable() runs when calcPlot() has been run.
+  ### Generates summary table of mean population estimates and mean numbers culled (across simulations)
+  cullTable <- eventReactive(input$run_in, {
+    validate(need(try(input$input_name), ""))
+     
+    #updateTabsetPanel(session=session, inputId="inTabset", selected="out_tab2") 
+
+    res <- gmse_goose_summarise(sims, input)
+        
+    cull_summary <- cbind( (res$last_obs_yr+1):(res$end_yr-1) ,
+                               floor(res$proj_y_mn),
+                               floor(res$mean_HB),
+                               floor(res$sd_HB),
+                               floor(res$min_HB),
+                               floor(res$max_HB))
     cull_summary <- as.data.frame(cull_summary)
     coln <- c('Year','Projected mean populaton size','Mean culled','SD culled','Min. culled','Max. culled')
-    
     datatable(cull_summary, colnames=coln, rownames=FALSE, options = list(dom = 't'))
+    
   })
   
   output$plot <- renderPlot({
@@ -235,7 +246,7 @@ server <- function(session, input, output) {
   output$out_culls <- renderDataTable({
     cullTable()
   })
-  
+
   output$out_all <- renderTable({
     allTable()
   })
