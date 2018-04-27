@@ -2,7 +2,7 @@ rm(list=ls()) # Housekeeping for testing
 library(shiny)
 library(DT)
 
-source('../notebook/goose_predict.R')
+source('goose_predict_gui.R')
 
 ### for testing only:
 # input <- list(input_name=data.frame(datapath=as.vector('~/Documents/toy_data.csv')), sims_in=5, yrs_in=5, maxHB_in=2000, target_in=26000)
