@@ -275,7 +275,7 @@ gmse_goose <- function(data_file, manage_target, max_HB,
                              manage_target = target, max_HB = max_HB,
                              use_est = use_est, stakeholders = 1, 
                              get_res = "full");
-    goose_data <- sim_goose_data(gmse_results = gmse_res$basic, 
+    goose_data <- sim_goose_data(gmse_results = gmse_res$basic,      # First simulated year populated with simulated env. variables (no goose projection yet)
                                  goose_data = goose_data);
     assign("goose_data", goose_data, envir = globalenv() );
     assign("target", manage_target, envir = globalenv() );
@@ -284,7 +284,7 @@ gmse_goose <- function(data_file, manage_target, max_HB,
     assign("use_est", use_est, envir = globalenv() );
     assign("gmse_res", gmse_res, envir = globalenv() );
     # -- Simulate --------------------------------------------------------------
-    while(years > 0){
+    while(years > 0){                                                # Count down number of years and for each add goose projections
         gmse_res_new   <- gmse_apply(res_mod = goose_gmse_popmod, 
                                      obs_mod = goose_gmse_obsmod,
                                      man_mod = goose_gmse_manmod,
@@ -308,6 +308,7 @@ gmse_goose <- function(data_file, manage_target, max_HB,
        assign("use_est", use_est, envir = globalenv() );
        years <- years - 1;
     }
+    goose_data <- goose_data[-(nrow(goose_data)),]        # Ignores the last "simulated" year as no numbers exist for it yet.
     if(plot == TRUE){
         dat <- goose_data[-1,];
         yrs <- dat[,1];
@@ -445,9 +446,9 @@ gmse_goose_summarise <- function(multidat, input) {
     
     orig_data <- goose_clean_data(input$input_name$datapath)
     last_obs_yr <- max(orig_data$Year)
-    proj_y <- lapply(multidat, function(x) x$y[x$Year>last_obs_yr+1])
+    proj_y <- lapply(multidat, function(x) x$y[x$Year>last_obs_yr])
     proj_y <- do.call(rbind, proj_y)
-    proj_HB <- lapply(multidat, function(x) x$HB[x$Year>last_obs_yr+1])
+    proj_HB <- lapply(multidat, function(x) x$HB[x$Year>last_obs_yr])
     proj_HB <- do.call(rbind, proj_HB)
     
     end_NN <- unlist(lapply(multidat, function(x) x$y[which.max(x$Year)]))

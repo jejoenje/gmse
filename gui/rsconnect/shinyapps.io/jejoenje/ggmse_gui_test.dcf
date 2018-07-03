@@ -5,8 +5,8 @@ account: jejoenje
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 332191
-bundleId: 1343445
+bundleId: 1343459
 url: https://jejoenje.shinyapps.io/ggmse_gui_test/
-when: 1524844521.035
+when: 1524844933.22364
 asMultiple: FALSE
 asStatic: FALSE
