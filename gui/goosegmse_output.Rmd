@@ -7,7 +7,47 @@ output: html_document
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+
+source('goose_predict_gui.R')
+
+ genSummary <- function() {
+      res <- gmse_goose_summarise(sims, input)
+      
+      if(is.na(res$first_overlap)) {
+          first_overlap <- paste("The projected population does not overlap the target in any of the projected years")
+      } else {
+          first_overlap <- paste("The range of projected population sizes overlapped the target of", 
+                                 input$target_in, "individuals in", sum(res$target_overlap), "out of", res$end_yr-res$last_obs_yr, "projected years.",
+                                 "The first year in which the range of projected population sizes overlapped with the population target was", res$first_overlap)
+      }
+      
+      p1 <- paste("In", res$end_yr,"the projected population size was between", floor(res$end_min), "and", floor(res$end_max), "individuals.") 
+      p2 <- paste("The projected population in ", res$end_yr, 
+                  switch(as.character(res$end_min<input$target_in & res$end_max>input$target_in), 'TRUE'='does', 'FALSE'='does not'),
+                  "overlap with the population target of", input$target_in
+      )
+      p3 <- paste("After ", res$end_yr-res$last_obs_yr, "projected years, the mean population size is predicted to be", 
+                  abs(floor(res$end_mean)-input$target_in), "individuals", 
+                  switch(as.character(sign(floor(res$end_mean)-input$target_in)), "-1"="below", "1"="above"), 
+                  "the population target of", input$target_in
+      )
+      p4 <- first_overlap
+      
+      div(
+          tags$ul(
+              h4("Summarised simulation results", style='align=left'),
+              tags$li(p1),
+              tags$li(p2),
+              tags$li(p3),
+              tags$li(p4, style = "color:red; font-weight: bold")
+          )
+      )
+ }
+ 
+ 
+
 load('input.Rdata')
+load('sims.Rdata')
 ```
 
 ## Input parameters
@@ -18,4 +58,6 @@ input
 ```
 
 ## Ouptut
-
+```{r output}
+genSummary()
+```
