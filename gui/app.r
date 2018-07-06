@@ -1,6 +1,10 @@
 rm(list=ls()) # Housekeeping for testing
 library(shiny)
 library(DT)
+library(markdown)
+library(rmarkdown)
+library(knitr)
+library(kableExtra)
 
 source('goose_predict_gui.R')
 
@@ -46,7 +50,7 @@ ui <- fluidPage(
       br(),
       fileInput("input_name", "Choose data file (XLS, XLSX or CSV)",
                 accept = c("application/vnd.ms-excel", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", ".xls", ".xlsx",
-                    "text/csv",
+                           "text/csv",
                            "text/comma-separated-values,text/plain",
                            ".csv")),
         
@@ -66,6 +70,7 @@ ui <- fluidPage(
     
       actionButton('run_in', 'Run simulations'),
       br(),
+      downloadButton("report", "Generate report"),
       br(),
       br(),
       img(src = "GMSE_logo_name.png", width='90%')
@@ -156,15 +161,29 @@ ui <- fluidPage(
                      tags$li(strong("Max. cull per year."), "It is very important to note that this parameter represent the maximum number culled only and is not
                              a soecific recommendation (it is set by the user). The actual number of individuals culled in each year projected may be lower than 
                              this and the mean, variation and range of this across simulations is provided in the output table. In some cases (e.g. when the population 
-                             size exceeds the population target by a large amount), it is likely that the number culled simply equals the maximum. Note that this 
-                             reflects a situation when there is no error in the number actually culled (e.g. marksmen are able to hit their target exactly).")
+                             size exceeds the population target by a large amount), it is likely that the number culled simply equals the maximum.", 
+                             strong(" Note that this reflects a situation when there is no error in the number actually culled (e.g. marksmen are able to hit 
+                                    their target exactly)."))
                  )
 
                  ),
         tabPanel(title = "Output", value = "out_tab",
+                    h2("Goose-GMSE simulations results"),
+                    paste("Generated on", Sys.time()),
+                    br(),
+                    h3("Input parameters"),
+                    br(),
+                    dataTableOutput('in_summary'),
+                    br(),
+                    h3("Output"),
                     plotOutput('plot', height='500px'),
                     htmlOutput('text_summary'),
-                    dataTableOutput('out_culls')
+                    br(),
+                    h4("Numbers culled per projected year"),
+                    dataTableOutput('out_culls'),
+                    br(),
+                    h3("Original data (as loaded)"),
+                    dataTableOutput('out_orig')
                  )
             
         )
@@ -207,10 +226,11 @@ server <- function(session, input, output) {
         proj_yrs = input$yrs_in, 
         max_HB=input$maxHB_in, 
         manage_target = input$target_in)
-    
+
     assign("sims", sims, envir = globalenv())
     assign("input", input, envir = globalenv())
-    save(input, file='input.Rdata')
+    input_list <- data.frame(datapath=input$input_name$datapath, sims_in=input$sims_in, yrs_in=input$yrs_in, maxHB_in=input$maxHB_in, target_in=input$target_in)
+    save(input_list, file='input.Rdata')
     save(sims, file='sims.Rdata')
   })
   
@@ -222,7 +242,9 @@ server <- function(session, input, output) {
             "Please load a base data file (see 'Help' for more info)"
         )
     } else {
-        genSummary()
+        output_summary <- genSummary()
+        print(output_summary)
+        save(output_summary, file='output_summary.Rdata')
     }
   })
   
@@ -244,10 +266,34 @@ server <- function(session, input, output) {
                                floor(res$min_HB),
                                floor(res$max_HB))
     cull_summary <- as.data.frame(cull_summary)
+    save(cull_summary, file='cull_summary.Rdata')
     coln <- c('Year','Projected mean populaton size','Mean culled','SD culled','Min. culled','Max. culled')
     datatable(cull_summary, colnames=coln, rownames=FALSE, options = list(dom = 't'))
     
   })
+  
+  inTable <- eventReactive(input$run_in, {
+      validate(need(try(input$input_name), ""))
+      
+      in_summary <- genInputSummary()
+      save(in_summary, file='in_summary.Rdata')
+      
+      datatable(in_summary, colnames=names(in_summary), rownames=FALSE, options = list(dom = 't'))
+      
+  })
+  
+  origTable <- eventReactive(input$run_in, {
+      validate(need(try(input$input_name), ""))
+      
+      orig_data <- goose_clean_data(input$input_name$datapath)
+      orig_data[,6:9] <- round(orig_data[,6:9],2)
+      orig_data[,11] <- round(orig_data[,11],2)
+      save(orig_data, file='orig_data.Rdata')
+      
+      datatable(orig_data, colnames=names(orig_data), rownames=FALSE, options = list(dom = 't'))
+      
+  })
+  
   
   output$plot <- renderPlot({
     calcPlot()
@@ -257,13 +303,40 @@ server <- function(session, input, output) {
     genSummaryText()
   })
   
+  output$in_summary <- renderDataTable({
+      inTable()
+  })
+  
   output$out_culls <- renderDataTable({
     cullTable()
   })
 
-  output$out_all <- renderTable({
-    allTable()
+  output$out_orig <- renderDataTable({
+      origTable()
   })
+  
+  output$report <- downloadHandler(
+      # For PDF output, change this to "report.pdf"
+      filename = "report.pdf",
+      content = function(file) {
+          # Copy the report file to a temporary directory before processing it, in
+          # case we don't have write permissions to the current working dir (which
+          # can happen when deployed).
+          # tempReport <- file.path(tempdir(), "goosegmse_output.Rmd")
+          # file.copy("goosegmse_output.Rmd", tempReport, overwrite = TRUE)
+          
+          # Knit the document, passing in the `params` list, and eval it in a
+          # child of the global environment (this isolates the code in the document
+          # from the code in this app).
+          rmarkdown::render("goosegmse_output.Rmd", output_file = file,
+                            envir = new.env(parent = globalenv()))
+
+          
+      },
+      contentType="application/pdf"
+  )
+  
+ 
 
 }
 

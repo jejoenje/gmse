@@ -361,8 +361,8 @@ gmse_goose_multiplot <- function(data_file, proj_yrs,
     obsrvd     <- 1:(dim(dat)[1] - proj_yrs - 1);
     par(mar = c(5, 5, 1, 1));
     plot(x = yrs, y = NN, xlab = "Year", ylab = "Population size",
-         cex = 1.25, pch = 20, type = "n", ylim = c(0, max(NN)), 
-         cex.lab = 1.5, cex.axis = 1.5, lwd = 2);
+         cex = 1.25, pch = 20, type = "n", ylim = c(0, max(NN+20)), 
+         cex.lab = 1.1, cex.axis = 1.1, lwd = 2);
     polygon(x = c(pry, 2*last_year, 2*last_year, rev(pry)), 
             y = c(rep(x = -10000, times = length(pry) + 1), 
                   rep(x = 2*max(NN), times = length(pry) + 1)), 
@@ -370,8 +370,8 @@ gmse_goose_multiplot <- function(data_file, proj_yrs,
     box();
     points(x = yrs[obsrvd], y = NN[obsrvd], cex = 1.25, pch = 20, type = "b");
     abline(h = manage_target, lwd = 0.8, lty = "dotted");
-    text(x = dat[5,1], y = max(NN), labels = "Observed", cex = 1.75);
-    text(x = pry[length(pry)], y = max(NN), labels = "Projected", cex = 1.75, pos = 2);
+    text(x = dat[5,1], y = max(NN+10), labels = "Observed", cex = 1.25);
+    text(x = pry[length(pry)], y = max(NN+10), labels = "Projected", cex = 1.25, pos = 2);
     for(i in 1:length(goose_multidata)){
         goose_data <- goose_multidata[[i]];
         dat <- goose_data[-1,];
@@ -381,6 +381,8 @@ gmse_goose_multiplot <- function(data_file, proj_yrs,
         pry <- (last_year):(yrs[length(yrs)]-2+20);
         points(x = yrs, y = NN, pch = 20, type = "l", lwd = 0.6);
     }
+    dev.copy(png,file="mainPlot.png", width=800, height=600)
+    dev.off()
     return(goose_multidata);
 }
 
@@ -397,10 +399,11 @@ gmse_print_multiplot <- function(goose_multidata, manage_target, proj_yrs,
     HB         <- dat[,3];
     pry        <- (last_year - proj_yrs):last_year;
     obsrvd     <- 1:(dim(dat)[1] - proj_yrs);
+    
     par(mar = c(5, 5, 1, 1));
     plot(x = yrs, y = NN, xlab = "Year", ylab = "Population size",
          cex = 1.25, pch = 20, type = "n", ylim = c(0, max(NN)), 
-         cex.lab = 1.5, cex.axis = 1.5, lwd = 2);
+         cex.lab = 1.1, cex.axis = 1.1, lwd = 2);
     polygon(x = c(pry, 2*last_year, 2*last_year, rev(pry)), 
             y = c(rep(x = -10000, times = length(pry) + 1), 
                   rep(x = 2*max(NN), times = length(pry) + 1)), 
@@ -408,8 +411,8 @@ gmse_print_multiplot <- function(goose_multidata, manage_target, proj_yrs,
     box();
     points(x = yrs[obsrvd], y = NN[obsrvd], cex = 1.25, pch = 20, type = "b");
     abline(h = manage_target, lwd = 0.8, lty = "dotted");
-    text(x = dat[5,1], y = max(NN), labels = "Observed", cex = 2.5);
-    text(x = pry[5], y = max(NN), labels = "Projected", cex = 2.5);
+    text(x = dat[5,1], y = max(NN), labels = "Observed", cex = 1);
+    text(x = pry[5], y = max(NN), labels = "Projected", cex = 1);
     if(type == 0){
         for(i in 1:iters){
             goose_data <- goose_multidata[[i]];
@@ -440,6 +443,7 @@ gmse_print_multiplot <- function(goose_multidata, manage_target, proj_yrs,
         points(x = yrs[py], y = NN_qu[1,py], cex = 0.8, pch = 25, bg = "red");
         points(x = yrs[py], y = NN_qu[5,py], cex = 0.8, pch = 24, bg = "red");
     }
+    
 }
 
 gmse_goose_summarise <- function(multidat, input) {
@@ -481,6 +485,13 @@ gmse_goose_summarise <- function(multidat, input) {
 
 }
 
+genInputSummary <- function() {
+    data.frame(
+        Parameter=c("No. of simulations", "Number of years projected", "Maximum no. culled", "Population target"), 
+        Value=c(input$sims_in, input$yrs_in, input$maxHB_in, input$target_in)    
+    )
+}
+
 genSummary <- function() {
     res <- gmse_goose_summarise(sims, input)
     
@@ -506,7 +517,6 @@ genSummary <- function() {
     
     div(
         tags$ul(
-            h4("Summarised simulation results", style='align=left'),
             tags$li(p1),
             tags$li(p2),
             tags$li(p3),
