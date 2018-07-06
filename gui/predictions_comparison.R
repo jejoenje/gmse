@@ -27,5 +27,5 @@ abline(a=min(alldat$AIG)*alldat_paras$par[2], b=0, lty='dotted', col='blue', lwd
 abline(a=max(alldat$AIG)*alldat_paras$par[2], b=0, lty='dotted', col='blue', lwd=0.5)
 
 plot(alldat$Year, alldat$Count, type='p', pch=21, col='black', bg='grey', main='Prediction comparison', xlab='Year', ylab='Population count')
-lines(alldat$Year, goose_pred(dat_1999_paras$par, alldat), col='red', lwd=0.75)     
-lines(alldat$Year, goose_pred(alldat_paras$par, alldat), col='blue', lwd=0.75)     
+lines(alldat$Year, goose_pred(dat_1999_paras$par, alldat), lty='solid', lwd=0.75)     
+lines(alldat$Year, goose_pred(alldat_paras$par, alldat), lty='dashed', lwd=0.75)     

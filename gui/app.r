@@ -86,7 +86,7 @@ ui <- fluidPage(
                    winter goose counts (averages), (2) climatic variability in previous years in both Greenland and on Islay, (3) the available area of improved 
                    grassland on Islay in previous years, (4) the numbers of geese killed (hunted) on Iceland and Greenland.", br(),
                    "These models were structured and parameterised on the basis of previous studies of this system, e.g. ",
-                   a("Mason et al. 2017", href="https://besjournals.onlinelibrary.wiley.com/doi/abs/10.1111/1365-2664.12969"),
+                   a("Mason et al. 2018", href="https://besjournals.onlinelibrary.wiley.com/doi/abs/10.1111/1365-2664.12969"),
                      "and",
                    a("Trinder et al. 2014.", href="http://www.snh.org.uk/pdfs/publications/commissioned_reports/568.pdf"),
                    "The model is described in more detail in SNH Commissioned Report", em("\"Development of a population model tool to predict shooting levels of 

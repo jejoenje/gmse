@@ -1,0 +1,21 @@
+---
+title: "Goose-GMSE Simulation summary"
+author: ""
+date: "6 July 2018"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+load('input.Rdata')
+```
+
+## Input parameters
+
+```{r inputpars}
+print(getwd())
+input
+```
+
+## Ouptut
+
