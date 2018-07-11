@@ -70,7 +70,7 @@ ui <- fluidPage(
     
       actionButton('run_in', 'Run simulations'),
       br(),
-      downloadButton("report", "Generate report"),
+      uiOutput("download"),
       br(),
       br(),
       img(src = "GMSE_logo_name.png", width='50%')
@@ -195,7 +195,13 @@ ui <- fluidPage(
 
 
 server <- function(session, input, output) {
-  
+
+     output$download <- renderUI({
+        if(exists('sims')) {
+            downloadButton("report", "Generate report")
+        }
+    })    
+      
   ### Switch to main output tab when run button is pressed
   observeEvent(input$run_in, {
      updateTabsetPanel(session=session, inputId="inTabset", selected="out_tab")
@@ -218,7 +224,8 @@ server <- function(session, input, output) {
     assign("progress", progress, envir = globalenv())
     
     progress$set(message = "Running simulations...", value = 0)
-    
+
+    # This runs the simulations using the input vals and plots the main output graph:    
     sims <- gmse_goose_multiplot(
         data_file=input$input_name$datapath, 
         iterations=input$sims_in, 
@@ -226,6 +233,7 @@ server <- function(session, input, output) {
         max_HB=input$maxHB_in, 
         manage_target = input$target_in)
 
+    # This re-plots the simulations but only for the projected range:
     gmse_print_multiplot(goose_multidata = sims, manage_target = input$target_in, proj_yrs = input$yrs_in)
     
     assign("sims", sims, envir = globalenv())
