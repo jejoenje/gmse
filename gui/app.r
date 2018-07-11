@@ -70,7 +70,8 @@ ui <- fluidPage(
     
       actionButton('run_in', 'Run simulations'),
       br(),
-      uiOutput("download"),
+      #uiOutput("download"),
+      downloadButton("report", "Generate report"),
       br(),
       br(),
       img(src = "GMSE_logo_name.png", width='50%')
@@ -196,12 +197,6 @@ ui <- fluidPage(
 
 server <- function(session, input, output) {
 
-     output$download <- renderUI({
-        if(exists('sims')) {
-            downloadButton("report", "Generate report")
-        }
-    })    
-      
   ### Switch to main output tab when run button is pressed
   observeEvent(input$run_in, {
      updateTabsetPanel(session=session, inputId="inTabset", selected="out_tab")
@@ -331,8 +326,8 @@ server <- function(session, input, output) {
           # Copy the report file to a temporary directory before processing it, in
           # case we don't have write permissions to the current working dir (which
           # can happen when deployed).
-          # tempReport <- file.path(tempdir(), "goosegmse_output.Rmd")
-          # file.copy("goosegmse_output.Rmd", tempReport, overwrite = TRUE)
+           tempReport <- file.path(tempdir(), "goosegmse_output.Rmd")
+           file.copy("goosegmse_output.Rmd", tempReport, overwrite = TRUE)
           
           # Knit the document, passing in the `params` list, and eval it in a
           # child of the global environment (this isolates the code in the document
@@ -343,6 +338,12 @@ server <- function(session, input, output) {
           
       }
   )
+  
+  # output$download <- renderUI({
+  #     if(exists('sims')) {
+  #         downloadButton("report", "Generate report")
+  #     }
+  # })    
   
 }
 
