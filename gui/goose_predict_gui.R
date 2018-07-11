@@ -387,8 +387,7 @@ gmse_goose_multiplot <- function(data_file, proj_yrs,
 }
 
 
-gmse_print_multiplot <- function(goose_multidata, manage_target, proj_yrs,
-                                 type = 0){
+gmse_print_multiplot <- function(goose_multidata, manage_target, proj_yrs){
     iters      <- length(goose_multidata);
     rows       <- dim(goose_multidata[[1]])[1];
     goose_data <- goose_multidata[[1]];
@@ -401,48 +400,28 @@ gmse_print_multiplot <- function(goose_multidata, manage_target, proj_yrs,
     obsrvd     <- 1:(dim(dat)[1] - proj_yrs);
     
     par(mar = c(5, 5, 1, 1));
-    plot(x = yrs, y = NN, xlab = "Year", ylab = "Population size",
-         cex = 1.25, pch = 20, type = "n", ylim = c(0, max(NN)), 
+    
+    yrs_plot <- which(yrs %in% pry[1]:last_year)
+    
+    png(file='zoomPlot.png',width=800, height=600)
+    
+    plot(x = yrs[yrs_plot], y = NN[yrs_plot], xlab = "Year", ylab = "Population size",
+         cex = 1.25, pch = 20, type = "n", ylim = c(0, max(NN)), xaxt='n',
          cex.lab = 1.1, cex.axis = 1.1, lwd = 2);
-    polygon(x = c(pry, 2*last_year, 2*last_year, rev(pry)), 
-            y = c(rep(x = -10000, times = length(pry) + 1), 
-                  rep(x = 2*max(NN), times = length(pry) + 1)), 
-            col = "grey", border = NA);
-    box();
-    points(x = yrs[obsrvd], y = NN[obsrvd], cex = 1.25, pch = 20, type = "b");
+    axis(1, at=yrs[yrs_plot], labels=yrs[yrs_plot])
+    
+    points(x = yrs[yrs_plot], y=NN[yrs_plot], cex = 1.25, pch = 20, type = "l")
+    points(pry[1], NN[which(yrs==pry[1])], col='red', cex=1.5, pch=16)
     abline(h = manage_target, lwd = 0.8, lty = "dotted");
-    text(x = dat[5,1], y = max(NN), labels = "Observed", cex = 1);
-    text(x = pry[5], y = max(NN), labels = "Projected", cex = 1);
-    if(type == 0){
-        for(i in 1:iters){
-            goose_data <- goose_multidata[[i]];
-            dat <- goose_data;
-            yrs <- dat[,1];
-            NN  <- dat[,10];
-            HB  <- dat[,3];
-            pry <- (last_year+1):(yrs[length(yrs)]-1+20);
-            points(x = yrs, y = NN, pch = 20, type = "l", lwd = 0.6);
-        }
+
+    for(i in 2:iters){
+        goose_data <- goose_multidata[[i]];
+        dat <- goose_data;
+        NN  <- dat[yrs_plot,10];
+        points(x = yrs[yrs_plot], y = NN, pch = 20, type = "l", lwd = 0.6);
     }
-    if(type == 1){
-        NN  <- matrix(data = 0, nrow = rows, ncol = iters);
-        yrs <- goose_multidata[[1]][,1];
-        for(i in 1:iters){
-            goose_data <- goose_multidata[[i]];
-            dat        <- goose_data;
-            NN[,i]     <- dat[,2];
-        }
-        py <- (rows - proj_yrs + 1):(rows-1); 
-        NN_qu <- apply(X = NN, MARGIN = 1, FUN = quantile);
-        points(x = yrs[py], y = NN_qu[3,py], cex = 1.25, pch = 20, lwd = 2, 
-               type = "b");
-        arrows(x0 = yrs[py], x1 = yrs[py], y0 = NN_qu[3,py], y1 = NN_qu[2,py], 
-               angle = 90, length = 0.1);
-        arrows(x0 = yrs[py], x1 = yrs[py], y0 = NN_qu[3,py], y1 = NN_qu[4,py], 
-               angle = 90, length = 0.1);
-        points(x = yrs[py], y = NN_qu[1,py], cex = 0.8, pch = 25, bg = "red");
-        points(x = yrs[py], y = NN_qu[5,py], cex = 0.8, pch = 24, bg = "red");
-    }
+    
+    dev.off()
     
 }
 
