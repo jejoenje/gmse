@@ -59,15 +59,28 @@ goose_rescale_AIG <- function(data, years = 22){
 goose_clean_data <- function(file){
   
     data   <- load_input(file);              # Load dataset
-    data$y <- data$Count+data$IslayCull;     # Count data + culled
+    
+        ### data$y is the observed count plus the number culled on Islay:
+    data$y <- data$Count+data$IslayCull
+    
     data   <- goose_rescale_AIG(data = data, years = 22);
   
     data$AugTemp   <- as.numeric( scale(data$AugTemp) )
     data$IslayTemp <- as.numeric( scale(data$IslayTemp) )
     data$AugRain   <- as.numeric( scale(data$AugRain) )
     data$AIG.sc    <- as.numeric( scale(data$AIG) )
-    data$HB        <- data$IcelandCull+data$GreenlandCull
-  
+    data$IcelandCull[is.na(data$IcelandCull)] <- 0
+    data$GreenlandCull[is.na(data$GreenlandCull)] <- 0
+    
+        ### The following ensures that if either G'land or Iceland culls were unavailable (NA) but the other was, the 
+        ###  missing number is treated as zero, i.e. the total culled on G'land and Iceland (HB) is always at least the number
+        ###  available for one of them (i.e. avoid NA's in a sum including NA's):
+    
+    data$HB <- data$IcelandCull+data$GreenlandCull
+    data$HB[data$HB==0] <- NA
+    data$IcelandCull[data$IcelandCull==0] <- NA
+    data$GreenlandCull[data$GreenlandCull==0] <- NA
+    
     return(data);
 }  
 
@@ -84,13 +97,13 @@ goose_growth <- function(para, data){
 }
 
 goose_pred <- function(para, data){
-  r_val        <- para[1]; # Maximum growth rate
-  K_val        <- para[2]; # Carrying capacity
-  G_rain_coeff <- para[3]; # Effect of precipitation on Greenland in August
-  G_temp_coeff <- para[4]; # Effect of temperature on Greenland in August
-  I_temp_coeff <- para[5]; # Effect of temperature on Islay the previous winter
-  AIG_2_yrs    <- para[6]; # Effect of area of improved grassland 2 years prior
-  hunting_bag  <- para[7]; # Effect of hunting bag
+  r_val        <- para[1];              # Maximum growth rate
+  K_val        <- para[2];              # Carrying capacity
+  G_rain_coeff <- para[3];              # Effect of precipitation on Greenland in August
+  G_temp_coeff <- para[4];              # Effect of temperature on Greenland in August
+  I_temp_coeff <- para[5];              # Effect of temperature on Islay the previous winter
+  AIG_2_yrs    <- para[6];              # Effect of area of improved grassland 2 years prior
+  #hunting_bag  <- para[7];             # Effect of hunting bag on G'land and Iceland - NO LONGER USED, SEE BELOW
   
   data_rows <- dim(data)[1];
   N_pred    <- rep(x = NA, times = data_rows);
@@ -103,9 +116,15 @@ goose_pred <- function(para, data){
       I_temp_adj   <- I_temp_coeff * data$IslayTemp[time - 1];
       AIG_2_adj    <- AIG_2_yrs    * data$AIG.sc[time - 2];
       adjusted     <- G_rain_adj + G_temp_adj + I_temp_adj + AIG_2_adj
-      hunted       <- hunting_bag  * goose_now;
-      N_pred[time] <- goose_repr * (goose_dens + adjusted) + goose_now - 
-                      goose_now * hunting_bag;
+      #hunted       <- hunting_bag  * goose_now;                                # This was the 'old' version of removing a proportion
+      N_pred[time] <- goose_repr * (goose_dens + adjusted) + goose_now - mean(data$HB, na.rm=T);    
+      
+      ### So, the prediction N_pred[time] here is the projected population size on Islay AFTER culling on G'land and Iceland,
+      ###  but EXCLUDING anything 'to be' culled on Islay at [time].
+      ### data$HB for the input file is the sum of the numbers culled on G'land and Iceland (treating an NA in one or the other as a zero
+      ###  but keeps NA if both values are NA.
+      ### By substracting mean(data$HB) here, the number removed due to culling in G'land and Iceland becomes a 'running mean' 
+      ###  (i.e. changed as new data become available) and will be sampled from randomly for future projections.
   }
   
   return(N_pred);
@@ -156,7 +175,7 @@ goose_gmse_popmod <- function(goose_data){
     N_pred <- goose_plot_pred(data = goose_data, plot = FALSE);
     N_last <- length(N_pred);
     New_N  <- as.numeric(N_pred[N_last]);
-    New_N  <- New_N - (0.03 * New_N);
+    #New_N  <- New_N - (0.03 * New_N);                          #  Err no?
     if(New_N < 1){
         New_N <- 1;
         warning("Extinction has occurred");
@@ -192,24 +211,63 @@ goose_gmse_usrmod <- function(manager_vector, max_HB){
     return(user_vector);
 }
 
-goose_sim_paras <- function(goose_data){
-    last_row <- dim(goose_data)[1];
-    for(col in 1:dim(goose_data)[2]){
-        if( is.na(goose_data[last_row, col]) == TRUE ){
-            if(col < 6){
-                goose_data[last_row, col] <- 0;
-            }else{
-                all_dat   <- goose_data[,col];
-                avail_dat <- all_dat[!is.na(all_dat)];
-                rand_val  <- sample(x = avail_dat, size = 1);
-                goose_data[last_row, col] <- rand_val;
-            }
-        }
-    }
+# goose_sim_paras <- function(goose_data){
+#     last_row <- dim(goose_data)[1];
+#     for(col in 1:dim(goose_data)[2]){
+#         if( is.na(goose_data[last_row, col]) == TRUE ){
+#             if(col < 6){
+#                 goose_data[last_row, col] <- 0;
+#             }else{
+#                 all_dat   <- goose_data[,col];
+#                 avail_dat <- all_dat[!is.na(all_dat)];
+#                 rand_val  <- sample(x = avail_dat, size = 1);
+#                 goose_data[last_row, col] <- rand_val;
+#             }
+#         }
+#     }
+#     return(goose_data);
+# }
+
+sample_noNA <- function(x) {
+    avail <- x[!is.na(x)]
+    sample(avail, 1)
+}
+
+goose_fill_missing <- function(goose_data){
+
+    ### goose_fill_missing()
+    ### 
+    ### Takes goose_data file as only argument.
+    ### - Checks whether required parameters are in input data (Year, Count, IslayCull).
+    ### - Deals with missing values in AIG, IslayTemp, AugRain, AugTemp, AIG.sc and HB. 
+    ###   Where these values are missing, they are sampled randomly from previous values (ignoring any previous NA's):
+    ### - Returns goose_data
+    
+    if(is.na(goose_data[nrow(goose_data),'Year'])) stop('Required data missing: Year')
+    if(is.na(goose_data[nrow(goose_data),'Count'])) stop('Required data missing: Count')
+    if(is.na(goose_data[nrow(goose_data),'IslayCull'])) stop('Required data missing: IslayCull')
+    
+    # Identify missing (NA) environmental variables:
+    missing_env <- is.na(goose_data[nrow(goose_data),c('AIG','IslayTemp','AugRain','AugTemp','AIG.sc','HB')])
+    missing_env <- dimnames(missing_env)[[2]][which(missing_env)]
+    
+    # Where missing (NA), replace with randomly sampled number from previous data (ignoring any previous NA values):
+    goose_data[nrow(goose_data),missing_env] <- apply(goose_data[-nrow(goose_data),missing_env],2,function(x) sample_noNA(x))
+    
     return(goose_data);
 }
 
+
 sim_goose_data <- function(gmse_results, goose_data){
+    
+    ### sim_goose_data()
+    ###
+    ### Takes GMSE 'basic' results (list of resource_resutls, observation_results, manager_results and user_results) and 
+    ###  goose_data (input data, possibly with previously simulated new years added) as arguments. 
+    ### - Calls goose_fill_missing() to ensure all previous years' data are available, or when not, sampled from previous years.
+    ### - Generates a new line of future data, using output from GMSE (and thus the goose population model), and randomly samples
+    ###    new environmental data for this year.
+    
     gmse_pop   <- gmse_results$resource_results;
     gmse_obs   <- gmse_results$observation_results;
     if(length(gmse_results$manager_results) > 1){
@@ -222,28 +280,28 @@ sim_goose_data <- function(gmse_results, goose_data){
     }else{
         gmse_cul   <- as.numeric(gmse_results$user_results);
     }
-    I_G_cul_pr <- (goose_data[,3] + goose_data[,5]) / goose_data[,10];
-    I_G_cul_pr <- mean(I_G_cul_pr[-length(I_G_cul_pr)]);
-    goose_data <- goose_sim_paras(goose_data);
+    #I_G_cul_pr <- (goose_data[,3] + goose_data[,5]) / goose_data[,10];
+    #I_G_cul_pr <- mean(I_G_cul_pr[-length(I_G_cul_pr)]);
+    goose_data <- goose_fill_missing(goose_data);
     rows       <- dim(goose_data)[1];
     cols       <- dim(goose_data)[2];
-    goose_data[rows, 3]    <- gmse_obs * I_G_cul_pr;
-    goose_data[rows, 4]    <- gmse_cul;
-    goose_data[rows, 5]    <- 0;
-    goose_data[rows, cols] <- gmse_cul;
+    #goose_data[rows, 3]    <- gmse_obs * I_G_cul_pr;     # This would set the last "current" values to something different to observed values? 
+    #goose_data[rows, 4]    <- 0;
+    #goose_data[rows, 5]    <- 0;
+    #goose_data[rows, cols] <- gmse_cul;
     new_r     <- rep(x = 0, times = cols);
     new_r[1]  <- goose_data[rows, 1] + 1;
-    new_r[2]  <- gmse_pop - gmse_cul;
-    new_r[3]  <- 0; 
-    new_r[4]  <- 0;
-    new_r[5]  <- 0;
-    new_r[6]  <- sample(x = goose_data[,6], size = 1);
-    new_r[7]  <- sample(x = goose_data[,7], size = 1);
-    new_r[8]  <- sample(x = goose_data[,8], size = 1);
-    new_r[9]  <- sample(x = goose_data[,9], size = 1);
-    new_r[10] <- gmse_pop - gmse_cul;
-    new_r[11] <- sample(x = goose_data[,11], size = 1);
-    new_r[12] <- 0;
+    new_r[2]  <- gmse_pop - gmse_cul;  # COUNT: Should this be the same as col 10 ('Y')??? So this now is the count on Islay AFTER the culled birds have been taken?
+    new_r[3]  <- NA;                   # These were all set to zero ???
+    new_r[4]  <- gmse_cul;             # These were all set to zero ??? Surely this must be what should be culled on Islay (ie Manager output from GMSE?)
+    new_r[5]  <- NA;                   # These were all set to zero ???
+    new_r[6]  <- sample_noNA(goose_data[,6]);
+    new_r[7]  <- sample_noNA(goose_data[,7]);
+    new_r[8]  <- sample_noNA(goose_data[,8]);
+    new_r[9]  <- sample_noNA(goose_data[,9]);
+    new_r[10] <- gmse_pop - gmse_cul;  # Y: Should this be the same as col 10 ('COUNT')???
+    new_r[11] <- sample_noNA(goose_data[,11]);
+    new_r[12] <- sample_noNA(goose_data[,12]);
     new_dat   <- rbind(goose_data, new_r);
     return(new_dat);
 }
@@ -275,7 +333,7 @@ gmse_goose <- function(data_file, manage_target, max_HB,
                              manage_target = target, max_HB = max_HB,
                              use_est = use_est, stakeholders = 1, 
                              get_res = "full");
-    goose_data <- sim_goose_data(gmse_results = gmse_res$basic,      # First simulated year populated with simulated env. variables (no goose projection yet)
+    goose_data <- sim_goose_data(gmse_results = gmse_res$basic,
                                  goose_data = goose_data);
     assign("goose_data", goose_data, envir = globalenv() );
     assign("target", manage_target, envir = globalenv() );
@@ -321,7 +379,7 @@ gmse_goose <- function(data_file, manage_target, max_HB,
              cex.lab = 1.5, cex.axis = 1.5, lwd = 2);
         polygon(x = c(pry, rev(pry)), 
                 y = c(rep(x = -10000, times = proj_yrs + 20), 
-                      rep(x = 2*max(NN), times = proj_yrs + 20)), 
+                      rep(x = 2*max(NN), times = proj_yrs + 20)),   
                 col = "grey", border = NA);
         box();
         points(x = yrs, y = NN, cex = 1.25, pch = 20, type = "b");
@@ -431,7 +489,7 @@ gmse_goose_summarise <- function(multidat, input) {
     last_obs_yr <- max(orig_data$Year)
     proj_y <- lapply(multidat, function(x) x$y[x$Year>last_obs_yr])
     proj_y <- do.call(rbind, proj_y)
-    proj_HB <- lapply(multidat, function(x) x$HB[x$Year>last_obs_yr])
+    proj_HB <- lapply(multidat, function(x) x$IslayCull[x$Year>last_obs_yr])
     proj_HB <- do.call(rbind, proj_HB)
     
     end_NN <- unlist(lapply(multidat, function(x) x$y[which.max(x$Year)]))

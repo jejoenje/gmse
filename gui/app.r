@@ -9,8 +9,17 @@ library(kableExtra)
 source('goose_predict_gui.R')
 
 ### for testing only:
-# input <- list(input_name=data.frame(datapath=as.vector('~/Documents/toy_data.csv')), sims_in=5, yrs_in=5, maxHB_in=2000, target_in=26000)
+# input <- list(input_name=data.frame(datapath=as.vector('~/Documents/docs/000_ConFooBio/gmse/data/example data UPDATED test.csv')),
+#    sims_in=5, yrs_in=5, maxHB_in=2000, target_in=32000)
 # input$input_name$datapath <- as.vector(input$input_name$datapath)
+# iterations <- input$sims_in
+# years <- input$yrs_in
+# proj_yrs <- years
+# manage_target <- input$target_in
+# max_HB <- input$maxHB_in
+# data_file <- as.vector(input$input_name$datapath)
+# obs_error = 1438.614
+# plot = TRUE
 
 progress_i <- 0
 assign("progress_i", progress_i, envir = globalenv())
@@ -42,7 +51,7 @@ cull_table_format <- htmltools::withTags(table(
 ui <- fluidPage(
   
   titlePanel(
-      "Goose-GMSE", windowTitle = "Goose-GMSE"
+      "Goose-GMSE (v. 1.0)", windowTitle = "Goose-GMSE"
   ),
   
   sidebarLayout(
@@ -84,7 +93,6 @@ ui <- fluidPage(
         tabPanel(title = "Introduction", value = "intro_tab", 
                  h2("Goose-GMSE"),
                  h3("Projecting population size under uncertainty and yearly culls"),
-                 p("Please note that this is a test release only and the interface is still under construction", style = "color:red; font-weight: bold"),
                  p("Goose-GMSE allows the user to easily run a series of population models for the Islay population of Greenland Barnacle Goose", 
                    em("Branta leucopsis.")),
                  p("The models used here are based on logistic growth models where population carrying capacity and growth rate 
@@ -111,9 +119,9 @@ ui <- fluidPage(
                         simulations are chosen)."), 
                    br(), br(),
                    "More information, e.g. on the formatting of this data set and the simulation parameters can be 
-                   found in the Help tab." ,style="font-weight:bold"),
-                 br()
+                   found in the Help tab." ,style="font-weight:bold")
                  ),
+
         tabPanel(title = "Help", value = "help_tab", 
                  h3("Extra help for running Goose-GMSE simulations"),
                  br(),
@@ -139,7 +147,7 @@ ui <- fluidPage(
                    ),
                  p(strong("Interpretation of output")),
                  tags$ul(
-                     tags$li(strong("Uncertainty."), "The output graph and summarised output are the result of simulations including observation uncertainty and some process
+                     tags$ li(strong("Uncertainty."), "The output graph and summarised output are the result of simulations including observation uncertainty and some process
                               uncertainty regarding future environmental conditions. Thus, it should be noted that the output and any inferences from 
                               them are inherently variable (i.e. contain a degree of uncertainty). Thus, any interpretation and recommendations derived
                               from this output should take account of this uncertainty: neither the projected population sizes nor the numbers culled should be 
@@ -288,14 +296,14 @@ server <- function(session, input, output) {
   
   origTable <- eventReactive(input$run_in, {
       validate(need(try(input$input_name), ""))
-      
+
       orig_data <- goose_clean_data(input$input_name$datapath)
       orig_data[,6:9] <- round(orig_data[,6:9],2)
       orig_data[,11] <- round(orig_data[,11],2)
       save(orig_data, file='orig_data.Rdata')
-      
+
       datatable(orig_data, colnames=names(orig_data), rownames=FALSE, options = list(dom = 't'))
-      
+
   })
   
   
