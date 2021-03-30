@@ -1,8 +1,8 @@
 ---
-title: "GMSE: a general tool for management strategy evaluation"
+title: "Generalised Management Strategy Evaluation: modelling biodiversity and food security"
 subtitle: "https://bradduthie.shinyapps.io/GMSE_presentation/#1"
-author: "Brad Duthie (@bradduthie)"
-date: "19 September 2017"
+author: "Brad Duthie (@bradduthie), Jeremy Cusack, Sarobidy Rakotonarivo, and Nils Bunnefeld"
+date: "8 January 2018"
 output: 
   ioslides_presentation:
     logo: Confoobio-stacked-logo.png
@@ -13,20 +13,453 @@ output:
 runtime: shiny
 ---
 
+
+<style type="text/css">
+body p {
+  color: #000000;
+}
+ul {
+  color: black;
+}
+ol {
+  color: black;
+}
+a {
+    color: darkblue;
+    text-decoration: none
+}
+.fifty {
+   font-size: 50%;
+   }
+.seventy {
+   font-size: 70%;
+   }
+slides > slide.backdrop {
+  background: none !important;
+  background-color: white !important;
+}
+slides > slide.title-slide hgroup h1 {
+  color: black;
+}
+slides > slide.title-slide p {
+  color: black;
+}
+slides > slide.light > hgroup h2 {
+  color: black;
+}
+slides > slide.light > hgroup h1 {
+  color: black;
+}
+ul {
+  color: black;
+}
+ol {
+  color: black;
+}
+p {
+  color: black
+}
+h1, h2, h3, h4, h5, h6, h7, h8, p {
+    color: black;
+}
+.checkbox-inline, .radio-inline {
+    margin-right: 90px;
+}
+
+.forceBreak { -webkit-column-break-after: always; break-after: column; }
+</style>
+
+
+
 ```{r, echo=FALSE}
-library(gamesGA);
 library(GMSE);
 library(knitr);
+library(shiny);
 ```
 
 <!---
 1. Know what to say about the Welikia project
-
-
 ---> 
 
+
+<!---
+https://welikia.org/
+http://ngm.nationalgeographic.com/2009/09/manhattan/miller-text
+https://welikia.org/explore/mannahatta-map/
+--->
+
+# Biodiversity and food security
+
+## {.smaller}
+
+<center>
+
+![](mannahatta_before.png)
+
+</center>
+
+## {.smaller}
+
+<center>
+
+![](mannahatta.png)
+
+[Markley Boyer](https://www.facebook.com/markley.boyer), [Robert Clark](http://www.nationalgeographic.com/contributors/c/photographer-robert-clark/), [National Geographic](http://ngm.nationalgeographic.com/2009/09/manhattan/miller-text), [Welikia Project](https://welikia.org/)
+
+</center>
+
+## {.smaller}
+
+<center>
+
+![](potato_fields_Janet_Tench.jpg)
+
+[Janet Tench](https://commons.wikimedia.org/wiki/File:Norfolk_potato_field_-_geograph.org.uk_-_180521.jpg)</footnote>
+
+</center>
+
+## {.smaller}
+
+<center>
+
+![](KehoeFig1.png)
+
+[Kehoe et al. (2017) *Nat. Ecol. Evol.* **1**:1129–1135](https://www.nature.com/articles/s41559-017-0234-3)</footnote>
+
+</center>
+
+##
+
+![](food_biodiversity.png)
+
+##
+
+![](wicked_modelling.png)
+
+# Modelling biodiversity dynamics and human decision-making
+
+##
+
+<center>
+
+![](mse_overview_sm.png)
+
+</center>
+
+## {.smaller}
+
+<center>
+
+![](mse_overview_sm_pt.png)
+
+**Management Strategy Evaluation**
+
+</center>
+
+## {.smaller}
+
+<center>
+
+![](mse_overview_sm_un.png)
+
+</center>
+<br>
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Bunnefeld et al. (2011) *Trends. Ecol. Evol.* [**26**:441-447](https://doi.org/10.1016/j.tree.2011.05.003) <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Chadès et al. (2017) *Theor. Ecol.* [**10**:1-10](https://doi.org/10.1007/s12080-016-0313-0)
+
+
+## The ConFooBio Project
+
+**Resolving conflicts between food security and biodiversity conservation under uncertainty**
+
+<div class = "columns-2">
+
+![](confoobio_sans.png)
+
+![](group.png)
+
+</div>
+
+
+
+## Generalised Management Strategy Evaluation (GMSE) software
+
+<div class = "columns-2">
+
+- **Model biodiversity dynamics & realistic human decision-making**
+- **Predict resource & land-use changes in social-ecological systems**
+- **Integrate flexibly with existing ecological models**
+- **Open-source on [CRAN](https://cran.r-project.org/package=GMSE) and [GitHub](https://github.com/ConFooBio/gmse)**
+
+<p class="forceBreak"></p>
+
+<center>
+
+![](GMSE_Logo_Goose_300.png)
+
+[![](http://www.r-pkg.org/badges/version/GMSE?color=yellowgreen)](https://cran.r-project.org/package=GMSE) [![](http://cranlogs.r-pkg.org/badges/grand-total/GMSE?color=yellowgreen)](http://cranlogs.r-pkg.org/badges/grand-total/GMSE)
+
+</center>
+
+</div>
+<br><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Duthie AB, et al. (2018) *Method. Ecol. Evol.* [**9**:2396-2401](https://besjournals.onlinelibrary.wiley.com/doi/10.1111/2041-210X.13091)
+
+## GMSE: population modelling (defaults)
+
+<div class = "columns-2"><br><br>
+
+- **Default models individual-based (IBM)**
+- **Spatially explicit landscape**
+- **Individual birth, movement, death**
+- **Can be over-ridden with custom models**
+
+<p class="forceBreak"></p>
+<br><br>
+<center>
+
+![](GMSE_Logo_Goose_300.png)
+
+[![](http://www.r-pkg.org/badges/version/GMSE?color=yellowgreen)](https://cran.r-project.org/package=GMSE) [![](http://cranlogs.r-pkg.org/badges/grand-total/GMSE?color=yellowgreen)](http://cranlogs.r-pkg.org/badges/grand-total/GMSE)
+
+</center>
+
+</div>
+
+## {.smaller}
+
+<center>
+
+![](case_studies.png)
+
+<br>
+
+Cusack, JJ, et al. *Conserv. Lett.* (*In press*). DOI: [10.1111/conl.12450](https://onlinelibrary.wiley.com/doi/full/10.1111/conl.12450)
+
+</center>
+
+##
+
+<center>
+
+![](mse_overview_sm.png)
+
+</center>
+
+
+##
+
+<center>
+
+![](gmse_overview_sm.png)
+
+</center>
+
+## Game theory: conflict and cooperation
+
+<div class="columns-2">
+
+- Formalisation and study of conflict and cooperation between rational decision-makers
+- Compatibile with agent-based modelling
+- Can suggest management strategies and be used to understand stake-holder actions
+- Conceptual unification
+
+<p class="forceBreak"></p>
+
+![](payoff_matrix_sm.png)
+<center>
+*Prisoner's dilemma*
+</center>
+
+</div><br>
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Adami et al. (2016) *Phys. Life. Rev.* [**19**:1-26](http://dx.doi.org/10.1016/j.plrev.2016.08.015) <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Tilman et al. (2016) *Theor. Ecol.* [**10**:155-165](http://link.springer.com/article/10.1007%2Fs12080-016-0318-8)
+
+## {.smaller}
+
+<div class="columns-2">
+
+![Public license<footnote>test</footnote>](US_USSR_nukes_sm.png).
+
+![Wilkinson 1990](Wilkinson1990_sm.png).
+
+![Isaacdm](penalty_sm.png).
+
+![Dennig](brexit_sm.png).
+
+</div>
+
+<br>
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **Images:** (1) [Public license](https://commons.wikimedia.org/wiki/File:US_and_USSR_nuclear_stockpiles.svg), (2) [Wilkinson 1990](https://projects.ncsu.edu/project/evoresources/Evolutionary%20medicine/Unitsofselection%20DM%20copy/wilkinson-foodsharing.pdf), (3) [Isaacdm](https://commons.wikimedia.org/wiki/File:PhysicsofPenalty.JPG?uselang=en-gb), (4) [Public license](http://www.publicdomainpictures.net/view-image.php?image=180560&picture=brexit-referendum-uk)
+
+
+## Game theory for wicked problems
+
+<div class="columns-2">
+
+<u>**Large strategy space:**</u>
+
+ - **Asymmetric payoffs** (payoffs affected by stake-holder identity)
+ - **Multiple choices**
+ - **Multiple players**
+ - **Iterated interactions** (strategies affected by interaction history)
+
+<p class="forceBreak"></p>
+
+![](payoff_matrix_sm.png)
+
+
+## Game theory for wicked problems
+
+<div class="columns-2">
+
+<u>**Large strategy space:**</u>
+
+ - **Asymmetric payoffs** (payoffs affected by stake-holder identity)
+ - **Multiple choices**
+ - **Multiple players**
+ - **Iterated interactions** (strategies affected by interaction history)
+
+<p class="forceBreak"></p>
+
+![](magnus.jpg)
+<center>
+[Andreas Kontokanis](https://commons.wikimedia.org/wiki/File:Carlsen_Magnus_(30238051906).jpg)</footnote>
+</center>
+
+##
+
+<center>
+
+![](gmse_overview_sm.png)
+
+</center>
+
+## {.smaller}
+
+<center>
+
+![](gmse_overview_sm_ga2.png)
+
+</center>
+
+
+## GMSE: modelling decision-making
+
+<div class = "columns-2">
+
+**Up to 5 possible actions**
+
+- Culling (&darr; survival)
+- Castration (&darr; reproduction)
+- Scaring (displacement)
+- Feeding (&uarr; survival)
+- Helping (&uarr; reproduction)
+
+**Manager sets policy**
+
+- Has a target population size
+- Has a budget to set costs
+
+<p class="forceBreak"></p>
+<br><br>
+<center>
+
+![](GMSE_Logo_Goose_300.png)
+
+[![](http://www.r-pkg.org/badges/version/GMSE?color=yellowgreen)](https://cran.r-project.org/package=GMSE) [![](http://cranlogs.r-pkg.org/badges/grand-total/GMSE?color=yellowgreen)](http://cranlogs.r-pkg.org/badges/grand-total/GMSE)
+
+</center>
+
+</div>
+
+
+## GMSE: modelling decision-making
+
+<div class = "columns-2">
+
+**Up to 5 possible actions**
+
+- Culling (&darr; survival)
+- Castration (&darr; reproduction)
+- Scaring (displacement)
+- Feeding (&uarr; survival)
+- Helping (&uarr; reproduction)
+
+**Users respond to policy**
+
+- Maximise resource use
+- Maximise land yield
+
+<p class="forceBreak"></p>
+
+<center>
+
 ```{r, echo = FALSE}
-plot_gmse_effort <- function(agents, paras, ACTION, COST){
+sim_old  <- gmse_apply(get_res = "Full", remove_pr = 0.122, lambda = 0.275,
+                       res_d4eath_K = 93870, RESOURCE_ini = 35000, 
+                       manage_target = 70000, res_death_type = 3,
+                       manager_budget = 10000, user_budget = 10000,
+                       public_land = 0.4, stakeholders = 8, res_consume = 0.02, 
+                       res_birth_K = 200000, land_ownership = TRUE,
+                       observe_type = 3, agent_view = 1, converge_crit = 0.01,
+                       ga_mingen = 200);
+sim_old$LAND[1:20,   1:20,  3] <- 2; 
+sim_old$LAND[1:20,  21:40,  3] <- 3;
+sim_old$LAND[1:20,  41:60,  3] <- 4;
+sim_old$LAND[1:20,  61:80,  3] <- 5;
+sim_old$LAND[1:20,  81:100, 3] <- 6;
+sim_old$LAND[21:40,  1:50,  3] <- 7;
+sim_old$LAND[21:40, 51:100, 3] <- 8;
+sim_old$LAND[41:60,  1:100, 3] <- 9;
+sim_old$LAND[61:100, 1:100, 3] <- 1; # Public land
+image(x = sim_old$LAND[,,3], col = topo.colors(9), xaxt = "n", yaxt = "n");
+```
+
+</center>
+
+</div>
+
+
+## GMSE: modelling decision-making {.smaller}
+
+Default individual-based models can be run using `gmse` in R ([multiple options](https://confoobio.github.io/gmse/reference/gmse.html)).
+
+```{r, eval = FALSE}
+sim <- gmse(time_max = 30, land_dim_1 = 100, land_dim_2 = 100,
+            observe_type = 1, res_death_K = 4000, 
+            manager_budget = 2000, user_budget = 500, 
+            scaring = TRUE, land_ownership = TRUE,
+            tend_crops = TRUE, stakeholders = 7,
+            res_consume = 1, RESOURCE_ini = 600);
+```
+
+One function [shows](https://confoobio.github.io/gmse/reference/plot_gmse_results.html) the general results of simulation dynamics.
+
+```{r, eval = FALSE}
+plot_gmse_results(sim);
+```
+
+Another function [shows](https://confoobio.github.io/gmse/reference/plot_gmse_effort.html) manager permissiveness, and stakeholder effort, for each action.
+
+```{r, eval = FALSE}
+plot_gmse_effort(sim);
+```
+
+
+
+## {.smaller}
+
+```{r, echo = FALSE}
+plot_gmse_effort <- function(sim){
+    
+    agents <- sim$agents;
+    paras  <- sim$paras;
+    ACTION <- sim$action;
+    COST   <- sim$cost;
     
     cols      <- c("green", "indianred1", "indianred3", "deepskyblue1",
                    "deepskyblue2");
@@ -37,7 +470,6 @@ plot_gmse_effort <- function(agents, paras, ACTION, COST){
     para_vec <- paras[1,];
     
     allowed  <- sum(para_vec[89:93]);
-
     scar_cst  <- matrix(data = 0, nrow = max_time, ncol = users);
     cull_cst  <- matrix(data = 0, nrow = max_time, ncol = users);
     cast_cst  <- matrix(data = 0, nrow = max_time, ncol = users);
@@ -49,13 +481,11 @@ plot_gmse_effort <- function(agents, paras, ACTION, COST){
     cast_act  <- matrix(data = 0, nrow = max_time, ncol = users);
     feed_act  <- matrix(data = 0, nrow = max_time, ncol = users);
     help_act  <- matrix(data = 0, nrow = max_time, ncol = users);
-
     scar_eff  <- matrix(data = 0, nrow = max_time, ncol = users);
     cull_eff  <- matrix(data = 0, nrow = max_time, ncol = users);
     cast_eff  <- matrix(data = 0, nrow = max_time, ncol = users);
     feed_eff  <- matrix(data = 0, nrow = max_time, ncol = users);
     help_eff  <- matrix(data = 0, nrow = max_time, ncol = users);    
-
     act_costs  <- matrix(data = 0, nrow = max_time, ncol = 5);
     pol_effort <- matrix(data = 0, nrow = max_time, ncol = 5);
     min_cost   <- para_vec[97];
@@ -112,7 +542,6 @@ plot_gmse_effort <- function(agents, paras, ACTION, COST){
         }
         help_eff[time,] <- help_act[time,]*help_cst[time,]/agents[[time]][,17];
     }
-
     # -- Turn these into percentages:
     scar_eff <- scar_eff * 100;
     cull_eff <- cull_eff * 100;
@@ -236,348 +665,58 @@ plot_gmse_effort <- function(agents, paras, ACTION, COST){
 }
 ```
 
-<!---
-https://welikia.org/
-http://ngm.nationalgeographic.com/2009/09/manhattan/miller-text
-https://welikia.org/explore/mannahatta-map/
 
---->
-
-# Biodiversity and food security
-
-## {.smaller}
-
-<center>
-
-![](mannahatta_before.png)
-
-</center>
-
-## {.smaller}
-
-<center>
-
-![](mannahatta.png)
-
-</center>
-
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Computer Image: [Markley Boyer](https://www.facebook.com/markley.boyer), Photo Image: [Robert Clark](http://www.nationalgeographic.com/contributors/c/photographer-robert-clark/)  
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [National Geographic](http://ngm.nationalgeographic.com/2009/09/manhattan/miller-text), [The Welikia Project](https://welikia.org/)
-
-
-
-## {.smaller}
-
-<center>
-
-![](potato_fields_Janet_Tench.jpg)
-
-<br><br>
-
-</center>
-
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Image: [Janet Tench](https://commons.wikimedia.org/wiki/File:Norfolk_potato_field_-_geograph.org.uk_-_180521.jpg)
-
-## {.smaller}
-
-<center>
-
-![](KehoeFig1.png)
-
-</center>
-
-<br><br><br>
-
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [Kehoe et al. (2017) *Nat. Ecol. Evol.* **1**:1129–1135](https://www.nature.com/articles/s41559-017-0234-3) 
-
-##
-
-![](food_biodiversity.png)
-
-##
-
-![](wicked_modelling.png)
-
-# Uncertainty and conservation conflict
-
-##
-
-<center>
-
-![](mse_overview_sm.png)
-
-</center>
-
-## {.smaller}
-
-<center>
-
-![](mse_overview_sm_pt.png)
-
-</center>
-
-<br>
-
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [Bunnefeld et al. (2011) *Trends. Ecol. Evol.* **26**:441-447](https://doi.org/10.1016/j.tree.2011.05.003)  
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [Chadès et al. (2017) *Theor. Ecol.* **10**:1-10](https://doi.org/10.1007/s12080-016-0313-0)
-
-
-## {.smaller}
-
-<center>
-
-![](mse_overview_sm_un.png)
-
-</center>
-
-<br>
-
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [Bunnefeld et al. (2011) *Trends. Ecol. Evol.* **26**:441-447](https://doi.org/10.1016/j.tree.2011.05.003)  
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [Chadès et al. (2017) *Theor. Ecol.* **10**:1-10](https://doi.org/10.1007/s12080-016-0313-0)
-
-
-## {.smaller}
-
-<!--- Transition from global to local scale --->
-
-![](wildlife_conflict_sm.jpg)
-
-<center>
-**Image**: [Public domain](https://commons.wikimedia.org/wiki/File:Human-wildlife_conflict.jpg)
-</center>
-
-## {.smaller}
-
-<div class = "columns-2">
-
-<!--- ![](African_Bush_Elephant.jpg) --->
-
-![](grouse_shooting.jpg)
-
-
-**Conservation conflicts between biodiversity and food security result when the outcome of one stake-holder is affected by one or more other stake-holders** ([Colyvan et al. (2011) *Biol. Conserv.* **144**:1246-1253](http://www.sciencedirect.com/science/article/pii/S000632071000488X?via%3Dihub))
-
-<br>
-
-- People with strongly held views clash over objectives
-- Negative effect on sustainability, biodiversity, and human livelihood
-- MSE does not integrate the livelihood decisions of people
-
-</div>
-<br><br>
-<center>
-
-**Image:** [Public](https://commons.wikimedia.org/wiki/File:Hardy_Heywood_-_The_Grouse_Shoot_1898.jpg) [Domain](https://commons.wikimedia.org/wiki/File:Henharrier.jpg)
-<!--- **Image:** [Muhammad Mahdi Karim](https://en.wikipedia.org/wiki/User:Muhammad_Mahdi_Karim) --->
-
-</center>
-
-## {.smaller}
-
-<div class = "columns-2">
-
-<!--- ![](African_Bush_Elephant.jpg) --->
-
-![](grouse_shooting2.jpg)
-
-
-**Conservation conflicts between biodiversity and food security result when the outcome of one stake-holder is affected by one or more other stake-holders** ([Colyvan et al. (2011) *Biol. Conserv.* **144**:1246-1253](http://www.sciencedirect.com/science/article/pii/S000632071000488X?via%3Dihub))
-
-<br>
-
-- People with strongly held views clash over objectives
-- Negative effect on sustainability, biodiversity, and human livelihood
-- MSE does not integrate the livelihood decisions of people
-
-</div>
-
-<br><br>
-
-<center>
-
-**Image:** [Public](https://commons.wikimedia.org/wiki/File:Hardy_Heywood_-_The_Grouse_Shoot_1898.jpg) [Domain](https://commons.wikimedia.org/wiki/File:Henharrier.jpg)
-<!--- **Image:** [Muhammad Mahdi Karim](https://en.wikipedia.org/wiki/User:Muhammad_Mahdi_Karim) --->
-
-</center>
-
-
-## The ConFooBio Project
-
-**Resolving conflicts between food security and biodiversity conservation under uncertainty**
-
-<div class = "columns-2">
-
-![](confoobio_sans.png)
-
-![](group.png)
-
-</div>
-
-
-
-## The ConFooBio Project
-
-**Resolving conflicts between food security and biodiversity conservation under uncertainty**
-
-<div class = "columns-2">
-
-![](confoobio_sans.png)
-
-<br><br><br>
-
-- What leads to conservation conflict?
-- How to resolve conservation conflict?
-- Impact on sustainability of social-ecological systems?
-
-</div>
-
-# Game theory in conservation conflict
-
-<!--- Get the ERC logo and EU flag in here? --->
-
-## Game theory: conflict and cooperation
-
-<div class="columns-2">
-
-- Formalisation and study of conflict and cooperation between rational decision-makers
-- Broadly encompasses combinatorial games (e.g., tic-tac-toe, chess) and evolutionary invasion analysis (adaptive dynamics)
-- Compatibile with agent-based modelling
-
-![](payoff_matrix_sm.png)
-
-</div>
-<hr>
-
-<br>
-
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [Adami et al. (2016) *Phys. Life. Rev.* **19**:1-26](http://dx.doi.org/10.1016/j.plrev.2016.08.015)
-
-## {.smaller}
-
-<div class="columns-2">
-
-![Public license](US_USSR_nukes_sm.png).
-
-![Wilkinson 1990](Wilkinson1990_sm.png).
-
-![Isaacdm](penalty_sm.png).
-
-![Dennig](brexit_sm.png).
-
-</div>
-
-<br>
-
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **Images:** (1) [Public license](https://commons.wikimedia.org/wiki/File:US_and_USSR_nuclear_stockpiles.svg), (2) [Wilkinson 1990](https://projects.ncsu.edu/project/evoresources/Evolutionary%20medicine/Unitsofselection%20DM%20copy/wilkinson-foodsharing.pdf), (3) [Isaacdm](https://commons.wikimedia.org/wiki/File:PhysicsofPenalty.JPG?uselang=en-gb), (4) [Public license](http://www.publicdomainpictures.net/view-image.php?image=180560&picture=brexit-referendum-uk)
-
-
-## Conflict in conservation
-
-Game theory provides a natural framework for addressing issues of cooperation and conflict in conservation.
-
-- Game theory can be used to understand stake-holder decision making ([Kark et al. 2015 *Curr. Opin. Environ. Sustainability* **12**:12-24]()).
-
-- Game-theoretic models can suggest novel management strategies ([Colvan et al. 2011 *Biol. Conserv.* **144**:1246-1253](http://dx.doi.org/10.1016/j.biocon.2010.10.028); [Tilman et al. 2016 *Theor. Ecol.*](http://link.springer.com/article/10.1007%2Fs12080-016-0318-8)).
-
-- Game theory can consider multiple management objectives simultaneously ([Lee 2012 *Chemosphere* **87**:608-613](http://dx.doi.org/10.1016/j.chemosphere.2012.01.014)).
-
-## Stake-holders are complex
-
-<div class="columns-2">
-
-**Simple models assume that stake-holders:**
-
-- Know what pay-offs will be
-- Have clearly defined choices
-- Behave rationally
-- Understand the games
-- Prioritise outcomes clearly
-
-![](payoff_matrix_sm.png)
-
-</div>
-
-## Conservation conflicts are complex {.smaller}
-
-<div class="columns-2">
-
- - **Asymmetric payoffs**: Payoffs of choices may depend instead on stake-holder identity.
-
-![](payoff_matrix_asym.png)
-
-</div>
-
-## But most games are more complex {.smaller}
-
-<div class="columns-2">
-
- - **Asymmetric payoffs**: Payoffs of choices may depend instead on stake-holder identity.
-  - **Multiple choices**: Players might have three or more choices.
-
-![](payoff_matrix_cho.png)
-
-</div>
-
-## But most games are more complex {.smaller}
-
-<div class="columns-2">
-
- - **Asymmetric payoffs**: Payoffs of choices may depend instead on stake-holder identity.
- - **Multiple choices**: Players might have three or more choices.
- - **Multiple players**: More than two stake-holders might interact at one time.
-
-![](payoff_matrix_3pl.png)
-
-</div>
-
-## But most games are more complex {.smaller}
-
-<div class="columns-2">
-
- - **Asymmetric payoffs**: Payoffs of choices may depend instead on stake-holder identity.
- - **Multiple choices**: Players might have three or more choices.
- - **Multiple players**: More than two stake-holders might interact at one time.
- - **Iterated interactions**: Strategies maybe affected by interaction history.
-
-```{r, echo=FALSE}
-rounds  <- as.character(1:9);
-players <- c("Player 1","Player 2");
-plays   <- sample(x=c(0,1), size=18, replace=TRUE);
-plays[plays == 0] <- "A";
-plays[plays == 1] <- "B";
-history <- matrix(data=plays, nrow=2);
-rownames(history) <- players;
-colnames(history) <- rounds;
-kable(noquote(history));
+```{r, echo = FALSE}
+inputPanel(
+  actionButton("run", "Run Simulation"),
+    actionButton("res", "Reset"),
+  radioButtons("typ", "",
+               c("General" = 1,
+                 "Effort"  = 2),
+               inline = TRUE, width = '800px')
+)
+
+sim      <- reactiveValues();
+okay     <- reactiveValues();
+sim$data <- NULL;
+okay$go  <- 0;
+
+sim_run <- observeEvent(input$run, {
+              sim$data <- gmse(time_max = 30, land_dim_1 = 100, land_dim_2 = 100, 
+                            observe_type = 1, res_death_K = 4000, plotting = FALSE,
+                            manager_budget = 2000, user_budget = 500, 
+                            scaring = TRUE, land_ownership = TRUE,
+                            tend_crops = TRUE, stakeholders = 7,
+                            res_consume = 1, RESOURCE_ini = 600,
+                            fixed_mark = 100, fixed_recapt = 200)
+              showNotification("Simulation has finished")
+})
+
+observeEvent(input$res, {
+    sim$data <- NULL;
+})
+
+renderPlot(height = 500, {
+    if(is.null(sim$data) == FALSE){
+        if(input$typ == 1){
+            plot_gmse_results(sim$data)
+        }else{
+            plot_gmse_effort(sim$data)
+        }
+    }
+})
 ```
 
-
-![](payoff_matrix_rd10_sm.png)
-
-
-</div>
-
-
-##{.smaller}
-
-<center>
-
-![](mse_overview_sm.png)
-
-</center>
-
-
 ## {.smaller}
 
-<center>
-
-![](gmse_overview_sm_ga.png)
-
-</center>
-
-<br><br><br>
-
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [Bunnefeld et al. (2011) *Trends. Ecol. Evol.* **26**:441-447](https://doi.org/10.1016/j.tree.2011.05.003)  
+```{r, echo = FALSE}
+renderDataTable(
+    if(is.null(sim$data) == FALSE){
+        dat <- gmse_table(sim$data)
+        dat[,1:6];
+    }
+)
+```
 
 ## {.smaller}
 
@@ -587,7 +726,206 @@ kable(noquote(history));
 
 </center>
 
-# Genetic algorithms, and an example using Prisoner's dilemma
+
+## Custom sub-models with gmse_apply {.smaller}
+
+
+Custom models can be integrated into GMSE with `gmse_apply`, which [takes the arguments](https://confoobio.github.io/gmse/reference/gmse_apply.html) `res_mod`, `obs_mod`, `man_mod`, and `use_mod`.
+
+```{r, eval = FALSE}
+new_sim <- gmse_apply(res_mod      = custom_resource_model,
+                      obs_mod      = custom_observation_model,
+                      man_mod      = manager, # GMSE default
+                      use_mod      = user,    # GMSE default
+                      stakeholders = 5,       # GMSE option
+                      custom_arg   = 200      # For custom function
+                      );
+```
+
+The `gmse_apply` function [needs to be looped](https://confoobio.github.io/gmse/articles/SI2.html#running-gmse-simulations-by-looping-gmse_apply) for modelling more than one time step (e.g., using the `old_list` argument).
+
+## Custom sub-models with gmse_apply {.smaller}
+
+
+Custom models can be integrated into GMSE with `gmse_apply`, which [takes the arguments](https://confoobio.github.io/gmse/reference/gmse_apply.html) `res_mod`, `obs_mod`, `man_mod`, and `use_mod`.
+
+Consider a logistic growth model:
+
+$$N_{t+1} = N_{t} + rN_{t+1}\left(1 - \frac{N_{t}}{K}\right)$$
+
+Written as a function in R to take in values from $N_{t}$ and return $N_{t+1}$.
+
+```{r}
+logistic_res_mod <- function(N_0, K = 2000, gr = 1){
+    N_1 <- N_0 + gr * N_0 * ( 1 - N_0/K );
+    return(N_1);
+}
+
+mod_result <- logistic_res_mod(N_0 = 200, gr = 0.3);
+```
+
+```{r, echo = FALSE}
+print(mod_result);
+```
+
+The above function *and all of its arguments* can be integrated into `gmse_apply`.
+
+## Custom sub-models with gmse_apply {.smaller}
+
+```{r, echo = FALSE}
+mod <- gmse_apply(res_mod = function(N_0 = 200, K = 2000, gr = 0.3) N_1 <- N_0 + gr * N_0 * ( 1 - N_0/K ), stakeholders = 2);
+```
+
+```{r, eval = FALSE}
+mod <- gmse_apply(res_mod = logistic_res_mod, # Custom model
+                  N_0 = 200, gr = 0.3,        # Custom arguments
+                  stakeholders = 2);          # GMSE arguments
+```
+
+```{r, echo = FALSE}
+print(mod);
+```
+
+
+## {.smaller}
+
+<center>
+
+![](gmse_overview_sm_ga2.png)
+
+</center>
+
+
+## Social conflict and management {.smaller}
+
+<div class = "columns-2">
+
+**Investigate how disagreement over target population size affects natural resource management**
+
+<center>
+
+<br><br>
+
+![](cusack.png)
+
+</center>
+
+<br>
+
+<p class="forceBreak"></p>
+
+**General idea**
+
+- Model divergent goals expressed by conservationists and resource users (two stake-holders)
+- Modified `gmse_apply` to allow for policy lobbying and illegal harvesting
+- Varied manager 'impartiality' (susceptability to lobbying pressure) 
+- Compared population dynamics given conservationist and resource user disagreement over population target
+    - Manager ($N_{m}$)
+    - Conservationist ($N_{c}$)
+    - Resource user ($N_{u}$)
+
+</div>
+
+## 
+
+![](gmse_power.png)
+
+## 
+
+<center>
+
+![](gmse_power4.png)
+
+</center>
+
+## {.smaller}
+
+<center>
+
+![](gmse_overview_sm.png)
+
+</center>
+
+
+## Using AI in population management
+
+<div class = "columns-2">
+
+![](bach.jpeg)
+
+![](IAPETUS.png)
+
+<p class="forceBreak"></p>
+
+**Using artificial intelligence to improve decision-making in conservation conflict**
+
+- Develop a framework for modelling AI for stake-holder decision-making
+- Develop AI software to simulate stake-holder interaction and negotiation
+- Apply agent-based decision-making to one or more case studies to predict long-term population dynamics
+
+</div>
+
+## Behavioural games in conservation
+
+![](gabon3.jpg)
+
+## Behavioural games in conservation
+
+![](madagascar.jpg)
+
+## Behavioural games in conservation
+
+![](goosebump.png)
+
+## AI of stake-holder decision-making
+
+<center>
+
+![](game_to_AI.png)
+
+</center>
+
+
+## {.smaller}
+
+<center>
+
+![](gmse_overview_sm.png)
+
+</center>
+
+## {.smaller}
+
+<center>
+
+![](meadow.jpg)
+
+[Wing-Chi Poon](https://commons.wikimedia.org/wiki/File:Mist_Covering_a_Meadow_under_Forest_Encroachment.jpg)
+
+</center>
+
+## {.smaller}
+
+<br>
+<center>
+
+![](acknowledgements.png)
+
+</center>
+
+## {.smaller}
+
+<br>
+<center>
+
+![](funding.png)
+
+</center>
+
+
+# Supporting Information: Genetic algorithm
+
+
 
 <!--- 
     START OF THE GENETIC ALGORITHM SET OF SLIDES  ------------------------------
@@ -598,6 +936,7 @@ kable(noquote(history));
 <div class="columns-2">
 
 ```{r, echo=FALSE}
+library(gamesGA);
 mbox <- function(x0, x1, y0, y1){
     xx <- seq(from=x0, to=x1, length.out = 100);
     yy <- seq(from=y0, to=y1, length.out = 100);
@@ -605,7 +944,6 @@ mbox <- function(x0, x1, y0, y1){
     yd <- c(yy, rep(y1,100), rev(yy), rep(y0, 100));
     return(list(x=xd, y=yd));
 }
-
 par(mar=c(0,0,0,0));
 # ===============================================================
 plot(x=0, y=0, type="n", xlim=c(0,200), ylim=c(0,100), xaxt="n", yaxt="n",
@@ -653,7 +991,6 @@ mbox <- function(x0, x1, y0, y1){
     yd <- c(yy, rep(y1,100), rev(yy), rep(y0, 100));
     return(list(x=xd, y=yd));
 }
-
 par(mar=c(0,0,0,0));
 # ===============================================================
 plot(x=0, y=0, type="n", xlim=c(0,200), ylim=c(0,100), xaxt="n", yaxt="n",
@@ -711,7 +1048,6 @@ mbox <- function(x0, x1, y0, y1){
     yd <- c(yy, rep(y1,100), rev(yy), rep(y0, 100));
     return(list(x=xd, y=yd));
 }
-
 par(mar=c(0,0,0,0));
 # ===============================================================
 plot(x=0, y=0, type="n", xlim=c(0,200), ylim=c(0,100), xaxt="n", yaxt="n",
@@ -770,7 +1106,6 @@ mbox <- function(x0, x1, y0, y1){
     yd <- c(yy, rep(y1,100), rev(yy), rep(y0, 100));
     return(list(x=xd, y=yd));
 }
-
 par(mar=c(0,0,0,0));
 # ===============================================================
 plot(x=0, y=0, type="n", xlim=c(0,200), ylim=c(0,100), xaxt="n", yaxt="n",
@@ -826,7 +1161,6 @@ mbox <- function(x0, x1, y0, y1){
     yd <- c(yy, rep(y1,100), rev(yy), rep(y0, 100));
     return(list(x=xd, y=yd));
 }
-
 par(mar=c(0,0,0,0));
 # ===============================================================
 plot(x=0, y=0, type="n", xlim=c(0,200), ylim=c(0,100), xaxt="n", yaxt="n",
@@ -888,7 +1222,6 @@ mbox <- function(x0, x1, y0, y1){
     yd <- c(yy, rep(y1,100), rev(yy), rep(y0, 100));
     return(list(x=xd, y=yd));
 }
-
 par(mar=c(0,0,0,0));
 # ===============================================================
 plot(x=0, y=0, type="n", xlim=c(0,200), ylim=c(0,100), xaxt="n", yaxt="n",
@@ -961,7 +1294,6 @@ mbox <- function(x0, x1, y0, y1){
     yd <- c(yy, rep(y1,100), rev(yy), rep(y0, 100));
     return(list(x=xd, y=yd));
 }
-
 par(mar=c(0,0,0,0));
 # ===============================================================
 plot(x=0, y=0, type="n", xlim=c(0,200), ylim=c(0,100), xaxt="n", yaxt="n",
@@ -1030,6 +1362,9 @@ kable(cbind(agents,fit), format="html");
     END OF THE GENETIC ALGORITHM SET OF SLIDES  --------------------------------
 --->
 
+# Example of a genetic algorithm for Prisoner's dilemma
+
+
 ## Iterated Prisoner's dilemma rules {.smaller}
 
 <div class="columns-2">
@@ -1070,7 +1405,6 @@ inputPanel(
   numericInput("DC", label = "DC", 0, width="30%"),
   numericInput("CD", label = "CD", 0, width="30%"),
   numericInput("DD", label = "DD", 0, width="30%"),
-
   style='width: 2000px; height: 60px'
 )
 ```
@@ -1129,286 +1463,5 @@ renderTable({
 }, include.rownames=TRUE)
 ```
 
-# Genetic algorithms in Management Strategy Evaluation
 
 
-## Generalised MSE {.smaller}
-
-<div class = "columns-2">
-
-- Integrates game theory and ecological theory to construct social-ecological models for adaptive management
-- Simulates all aspects of management: population dynamics, manager observation of populations, manager decision making, and stake-holder responses to management decisions
-- Mimic the decision-making process of managers and stake-holders under conditions of change, uncertainty, and conflict
-- Provide a flexible modelling framework for future development of complex adaptive management models to be applied to conservation theory and specific case studies
-
-<br><br>
-
-<center>
-
-![](GMSE_Logo_Goose_375.png)
-
-</center>
-
-</div>
-
-## Generalised MSE ('GMSE' R package)
-
-<div class = "columns-2">
-
-- Individual-based
-- Spatially explicit
-- Written in R and C
-- Requires R (>= 3.3.3)
-- License GPL (>=2)
-- *v0.2.2.7* [available](https://cran.r-project.org/package=GMSE) on CRAN
-- Browser-based GUI [available](https://bradduthie.shinyapps.io/gmse_gui/) via shiny
-- Source code [available](https://github.com/bradduthie/gmse) on GitHub
-- Intended for a wide range of software users
-
-<br><br>
-
-<center>
-
-![](GMSE_Logo_Goose_375.png)
-
-</center>
-
-</div>
-
-
-##
-
-<center>
-
-![](gmse_overview_sm.png)
-
-</center>
-
-
-## GMSE: Natural resources 
-
-<div class = "columns-2">
-
-
-- Spatially explicit landscape
-- Discrete individual resources
-- Individual birth, movement, death
-
-<br>
-
-<center>
-
-![](sep_land.gif)
-
-</center>
-
-## GMSE: Resource observation {.smaller}
-
-<div class = "columns-2">
-
-
-- Four types of observation options
-    1. Counting on a subset of landscape
-    2. Mark and recapture
-    3. Linear transect sampling
-    4. Block transect sampling
-- Mechanistic sampling process
-- Generates simulated data frame used by the manager
-
-<br>
-
-<center>
-
-![](binos.png)
-
-</center>
-
-</div>
-
-<center>
-
-<br><br><br><br><br><br><br><br>
-
-**Image:** [Public Domain](https://commons.wikimedia.org/wiki/File:Fernglas(alt).JPG)
-
-</center>
-
-## GMSE: Management {.smaller}
-
-<div class = "columns-2">
-
-
-- One manager analyses observations and compares with a target abundance
-- Five possible policy options (scaring, culling, castration, feeding, helping)
-- Fixed budget and costs for setting policy
-- Genetic algorithm anticipates policy effects from previous actions to set costs of actions for stake-holders
-
-<br>
-
-<center>
-
-![](balance.png)
-
-</center>
-
-## GMSE: Stake-holder actions {.smaller}
-
-<div class = "columns-2">
-
-- Any number of stake-holders
-- Stake-holders want to maximise harvest of resources or minimise resource effects on their land
-- Seven possible actions (scaring, culling, castration, feeding, helping, tend crops, kill crops)
-- Fixed budget for performing actions of potentially differing costs
-- Genetic algorithm anticipates effects of actions on harvest or land yield
-
-<br>
-
-<center>
-
-![](harvesting.jpg)
-
-</center>
-
-
-</div>
-
-<center>
-
-<br>
-
-**Image:** [Public Domain](https://commons.wikimedia.org/wiki/File:Libiaz-zniwa1938.a.jpg)
-
-</center>
-
-
-# Example use of GMSE
-
-## Running the gmse() function {.smaller}
-
-```{r, echo = TRUE}
-sim <- gmse(land_ownership = TRUE, stakeholders = 10, RESOURCE_ini = 1000,
-            res_death_K = 2000, manage_target = 1000, res_consume = 1,
-            manager_budget = 5000, user_budget = 5000, plotting = FALSE,
-            scaring = TRUE, culling = TRUE, observe_type = 1, fixed_mark = 50, 
-            fixed_recapt = 300);
-```
-
-
-## Inferring GMSE from plots {.smaller}
-
-**General plot of simulation results.**
-
-```{r, echo = TRUE, eval = FALSE}
-plot_gmse_results(res = sim$resource, obs = sim$observation, land = sim$land,
-                  agents = sim$agents, paras = sim$paras, ACTION = sim$action,
-                  COST = sim$cost);
-```
-
-<br>
-
-**Plot of conflict among stake-holders**
-
-```{r, echo = TRUE, eval = FALSE}
-plot_gmse_effort(agents = sim$agents, paras = sim$paras, ACTION = sim$action, 
-                 COST   = sim$cost);
-```
-
-
-##
-
-<center>
-
-```{r, echo = FALSE, fig.height = 6, fig.width = 7}
-plot_gmse_results(res = sim$resource, obs = sim$observation, land = sim$land,
-                  agents = sim$agents, paras = sim$paras, ACTION = sim$action,
-                  COST = sim$cost);
-```
-
-</center>
-
-## {.smaller}
-
-<center>
-
-```{r, echo = FALSE, fig.height = 6.5, fig.width = 6}
-plot_gmse_effort(agents = sim$agents, paras = sim$paras, ACTION = sim$action, 
-                 COST   = sim$cost);
-```
-
-</center>
-
-
-# [GMSE GUI](https://bradduthie.shinyapps.io/gmse_gui/)
-
-## Use of GMSE: Model case studies
-
-<div class = "columns-2">
-
-<center>
-
-![](African_Bush_Elephant.jpg)  
-**Image:** [M. M. Karim](https://en.wikipedia.org/wiki/User:Muhammad_Mahdi_Karim)
-
-![](barnacle_goose.JPG)  
-**Image:** [Raju Kasambe](https://commons.wikimedia.org/wiki/File:Barnacle_Geese_Branta_leucopsis_London_UK_(4).JPG)
-
-</center>
-
-</div>
-
-## Use of GMSE: Theoretical questions
-
-<center>
-
-![](man_freq.png) 
-
-</center>
-
-## Future software development
-
-<div class = "columns-2">
-
-- Modular `gmse_apply()` function allowing user-supplied natural resource, observation, manager, and user models
-- Stuctured populations (e.g., sex, stage)
-- Multiple populations of interacting species
-- Improved strategy prediction for managers and users
-- Interactive decision-making with software users
-
-<center>
-
-![](GMSE_Logo_Goose_375.png)
-
-</center>
-
-</div>
-
-
-## {.smaller}
-
-<br>
-<center>
-
-![](acknowledgements.png)
-
-</center>
-
-
-##
-
-<br><br><br>
-
-<div class = "columns-2">
-
-<center>
-
-
-
-![](confoobio_sans.png)
-
-
-![](GMSE_Logo_Goose_340.png)  
-
-
-</center>
-
-</div>

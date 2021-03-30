@@ -6,21 +6,21 @@
 #' own, gmse() is really all that is needed to run a simulation. 
 #'
 #' 
-#'@param time_max This value sets the maximum number of time steps for a simulation. There are no constraints for length of time that a simulation can run. The default is 100 time steps.
+#'@param time_max This value sets the maximum number of time steps for a simulation. There are no constraints for length of time that a simulation can run. The default is 40 time steps.
 #'@param land_dim_1 This value sets the number of cells on the x dimension of the landscape (i.e., the number of columns in the landscape array; this can also be thought of as the x-axis when the landscape image is plotted). There is no maximum, but the minimum dimension of a landscape is 2 cells. The default is 100 cells.
 #'@param land_dim_2 This value sets the number of cells on the y dimension of the landscape (i.e., the number of columns in the landscape array; this can also be thought of as the y-axis when the landscape image is plotted). There is no maximum, but the minimum dimension of a landscape is 2 cells. The default is 100 cells.
 #'@param res_movement This value determines how far resources move during a time step. Exact movement is probabilistic and partly affected by `res_move_type` settings. Under default settings, during each time step, resources move from zero to res_movement cells away from their starting cell in any direction. Hence res_movement is the maximum distance away from a resources starting cell that it can move in a time step; other types of resource movement, however, interpret res_movement differently to get the raw distance moved (see res_move_type). The default value is 20.
-#'@param remove_pr This value is the density-independent and user-independent probability of a resource being removed (e.g., dying) during a time step in the resource model. Under default settings, this value is set to zero, with resource removal being determined entirely by carrying capcity on resource survival, and by user actions. 
+#'@param remove_pr This value is the density-independent and user-independent probability of a resource being removed (e.g., dying) during a time step in the resource model. Under default settings, this value is set to zero, with resource removal being determined entirely by carrying capacity on resource survival, and by user actions. 
 #'@param lambda This value is the baseline population growth rate of resources. Each resource in the simulation produces Poisson(lambda) offspring in one time step within the resource model. The value of lambda might be increased or decreased by user actions, and juvenile survival can potentially be decreased by a carrying capacity placed on birth. The default value is 0.3, meaning that the average resource produces one offspring every three time steps.
 #'@param agent_view This value determines how far agents (managers and stakeholders) can see on the landscape. At the moment, this affects only the sampling ability of managers in the observation model for density-based and transect-based estimates of resource abundance. In these types of estimates, when managers have a higher agent_view, they are capable of observing a larger area of landscape and therefore of getting a larger (in the case of density-based estimation) or more efficient (in the case of transect-based estimation) sample of resources from which to estimate total resource abundance. The default value of agent_view is 10, so agents can see 10 cells away from their current cell in any direction.
 #'@param agent_move This value determines how far agents can move. At the moment, this does not affect much in the simulation because agent movement does not affect agent actions (interactions with resources can be limited to stakeholder's owned land, but do not currently depend on where an agent is on the landscape -- effectively assuming that agents are mobile enough to do what they want to do to resources). The one exception is for density-based estimation, which can be biased by low values of agent_move by causing the manager to sample the same (or nearby) landscape cells to estimate total resource abundance; if resources are spatially autocorrelated, then managers might over or under-estimate total abundance. Therefore, as a default, this value is set to 50 so that managers can move to any cell on a (torus) landscape in a time step, removing any bias for density sampling.
-#'@param res_birth_K This value is the carrying capacity on new resources added per time step (e.g., birth). If more offspring are born in a time step than res_birth_K, then offspring are randomly removed from the population until offspring born equals res_birth_K. By default, carrying capacity is effectively applied to death instead of birth, so the default value of res_birth_K is set to 10000 (and hence not enacted because the number of births is never this high).
+#'@param res_birth_K This value is the carrying capacity on new resources added per time step (e.g., birth). If more offspring are born in a time step than res_birth_K, then offspring are randomly removed from the population until offspring born equals res_birth_K. By default, carrying capacity is effectively applied to death instead of birth, so the default value of res_birth_K is set to 100000 (and hence not enacted because the number of births is never this high).
 #'@param res_death_K This value is the carrying capacity on resources in the population. Carrying capacity is realised by an increase in mortality probability as resource abundance approaches res_death_K. In each time step, realised mortality probability equals the number of resources over carrying capacity divided by the number of resources (i.e., [resource count - carrying capacity] / resource count). Hence, as the resource abundance increases above carrying capcity, mortality probability also increases in proportion, generating some stochasticity in resource survival. Note that carrying capacity is independent of user actions; if a user culls a resource this culling is applied after mortality probability due to carrying capacity has already been calculated. The default value for res_death_K is 2000.
 #'@param edge_effect This determines what happens at the edge of the landscape. Currently there is only one option (value 1), which causes the landscape to wrap around as a torus (effectively removing the edge); resources that leave off of one side of the landscape will reappear on the other side of the landscape. 
 #'@param res_move_type This determines the type of movement that resources do. There are four different movement options: (0) No movement -- resources are sessile, (1) Uniform movement in any direction up to `res_movement` cells away during a time step. Movement direction is random and the cell distance moved is randomly selected from zero to `res_movement`. (2) Poisson selected movement in the x and y dimensions where distance in each direction is determined by Poisson(res_movement) and direction (e.g., left versus right) is randomly selected for each dimension. This type of movement tends to look a bit odd with low `res_movement` values because it results in very little diagonal movement. It also is not especially biologically realistic, so should probably not be used without a good reason. (3) Uniform movement in any direction up to `res_movement` cells away during a a time step `res_movement` times. In other words, the `res_movement` variable of each resource is acting to determine the times that a resource moves in a time step and the maximum distance it travels each time it moves. This type of movement has been simulated in ecological models, particularly plant-pollinator systems. The default movement type is (1).
 #'@param res_birth_type The type of resource addition (birth) that occurs. Currently, the only value allowed is 2, which causes all resources to produce Poisson(lambda) offspring each time step, where `lambda` is the population growth rate also set as an argument in gmse simulations.
 #'@param res_death_type The type of resource removal (death) that occurs. A value of (1) causes death to be entirely density-independent and with a probability of `removal_pr` for each resource (which may be further affected by agent actions or interactions with landscape cells). A value of (2) causes death to be entirely density-dependent (though potentially independently affected by agents and landscape), with mortality probability calculated based on the carrying capacity `res_death_K` set in as an argument in gmse simulations. A value of (3) allows for both density-dependent (affected by `res_death_K`) and density-independent (affected by `removal_pr`) effects on resource removal. The default `res_death_type` is (2); values of (1) must be used carefully because it can result in exponential growth that leads to massive population sizes that slow down simulations.
-#'@param observe_type The type of observation sampling of resources being done by managers in the observation model. There are currently four options for sampling. (0) Density-based sampling, in which managers sample all resources within some subset of the landscape; the size of this subset is all of the resources within a distance of `agent_view` from the cell of the manager. Managers sample `times_observe` subsets, where `times_observe` is a parameter value set in the gmse simulation. Managers then extrapolate the density of resources in the subset to estimate the total number of resources on a landscape. (1) Mark-recapture estimate of the popuation, in which managers randomly sample `times_observe` resources in the population without any spatial bias (if there are fewer than `times_observe` resources, managers sample all resources) `times_observe` times with replacement. The first `fixed_observe` times are interpreted as marks, while the remaining times are interpreted as recaptures (note that `fixed_observe` must be less than `times_observe`). Hence if a resource is observed at any time in `fixed_observe` independent observations, then it is considered marked; if it is observed again at any time in `times_observe - fixed_observe` independent observations, then it is considered recaptured. A Chapman estimate is used in the manager model to estimate population size from these observation data. (2) Transect-based sampling (linear), in which a manager samples an entire row of the landscape and counts the resources on the row, then moves onto the next row of the landscape until the entire landscape has been covered. The number of cells in each row (i.e., the height) equals `agent_view`, so fewer transects are needed if agents can see farther. If `res_move_obs == TRUE`, then resources can move on the landscape between each transect sampling, potentially causing observation error if some resources are double counted or not counted at all due to movement. If `res_move_obs == FALSE`, then this type of observation should produce no error, and resource estimation will be exact. (3) Transect-based sampling (block), in which a manager samples a block of the landscape and counts the resources in the block, then moves on to the next (equally sized) block until the entire landscape has been covered. Blocks are square, with the length of each side equaling `agent_view`, so fewer blocks are needed if agents can see farther. If `res_move_obs == TRUE`, then resources can move on the landscape between each block sampling, potentially causing observation error if some resources are double counted or not counted at all due to movement. If `res_move_obs == FALSE`, then this type of observation should produce no error, and resource estimation will be exact. The default observation type is 0 for density-based sampling.
+#'@param observe_type The type of observation sampling of resources being done by managers in the observation model. There are currently four options for sampling. (0) Density-based sampling, in which managers sample all resources within some subset of the landscape; the size of this subset is all of the resources within a distance of `agent_view` from the cell of the manager. Managers sample `times_observe` subsets, where `times_observe` is a parameter value set in the gmse simulation. Managers then extrapolate the density of resources in the subset to estimate the total number of resources on a landscape. (1) Mark-recapture estimate of the popluation, in which managers randomly sample `fixed_mark` resources (without replacement) in the population without any spatial bias (if there are fewer than `fixed_mark` resources, managers sample all resources). The manager then randomly samples `fixed_recapt` resources (without replacement), again without any spatial bias. A Chapman estimate is then used in the manager model to estimate population size from these mark-recapture data. (2) Transect-based sampling (linear), in which a manager samples an entire row of the landscape and counts the resources on the row, then moves onto the next row of the landscape until the entire landscape has been covered. The number of cells in each row (i.e., the height) equals `agent_view`, so fewer transects are needed if agents can see farther. If `res_move_obs == TRUE`, then resources can move on the landscape between each transect sampling, potentially causing observation error if some resources are double counted or not counted at all due to movement. If `res_move_obs == FALSE`, then this type of observation should produce no error, and resource estimation will be exact. (3) Transect-based sampling (block), in which a manager samples a block of the landscape and counts the resources in the block, then moves on to the next (equally sized) block until the entire landscape has been covered. Blocks are square, with the length of each side equaling `agent_view`, so fewer blocks are needed if agents can see farther. If `res_move_obs == TRUE`, then resources can move on the landscape between each block sampling, potentially causing observation error if some resources are double counted or not counted at all due to movement. If `res_move_obs == FALSE`, then this type of observation should produce no error, and resource estimation will be exact. The default observation type is 0 for density-based sampling.
 #'@param fixed_mark This parameter affects mark-recapture observation (i.e., applies only when observe_type == 1). Its value defines how many resources will be marked in each time step as part of a mark-recapture population size estimate.
 #'@param fixed_recapt This parameter affects mark-recapture observation (i.e., applies only when observe_type == 1). Its value defines how many resources will be (re)captured in each time step as part of a mark-recapture population size estimate. 
 #'@param times_observe This parameter defines how many times a manager will make observations within the observation model; it applies only to density-based sampling (`observe_type = 0`) and mark-recapture sampling (`observe_type = 1`). In the former case, the value determines how many times the manager goes out to sample resources from a subset of the landscape. In the latter case, the value determines how many times the manager goes out to attempt to find new resources to mark or recapture (hence its value must be greater than `fixed_observe`).
@@ -33,16 +33,16 @@
 #'@param start_hunting The time step in which the human (*not* the simulated agent) is allowed to start hunting if `hunt = TRUE`. The default value is 95.
 #'@param res_consume The fraction of remaining biomass (e.g. crop production) that a resource consumes while occupying a landscape cell. The default value is 0.5, so if one resource occupies the cell, then landscape production is halved, if two resources occupy the cell, then landscape production drops to 0.25; if three, then production drops to 0.125, etc.
 #'@param ga_popsize The size of populations of agents in the genetic algorithm (not resources in the simulation). The actions of each agent in the simulation are duplicated `ga_popsize` times, and this population of individual agent actions undergoes a process of natural selection to find an adaptive strategy. Selection is naturally stronger in larger populations, but a default population size of 100 is more than sufficient to find adaptive strategies. 
-#'@param ga_mingen The minimum number of generations in the genetic algorithms of the simulation (*not* the number of time steps in the simulation itself). The actions of each agent in the simulation are duplicated `ga_popsize` times, and this population of individual agent actions undergoes a process of natural selection at least `ga_mingen` times to find an adaptive strategy. If convergence criteria `converge_crit` is set to a default value of 100, then the genetic algorithm will almost always continue for exactly `ga_mingen` generations. The default value is 20, which is usually plenty for finding adaptive agent strategies -- the objective is not to find optimal strategies, but strategies that are strongly in line with agent interests.
+#'@param ga_mingen The minimum number of generations in the genetic algorithms of the simulation (*not* the number of time steps in the simulation itself). The actions of each agent in the simulation are duplicated `ga_popsize` times, and this population of individual agent actions undergoes a process of natural selection at least `ga_mingen` times to find an adaptive strategy. If convergence criteria `converge_crit` is set to a default value of 100, then the genetic algorithm will almost always continue for exactly `ga_mingen` generations. The default value is 40, which is usually plenty for finding adaptive agent strategies -- the objective is not to find optimal strategies, but strategies that are strongly in line with agent interests.
 #'@param ga_seedrep At the start of each genetic algorithm, `ga_popsize` replicate agents are produced; `ga_seedrep` of these replicates are *exact* replicates, while the rest have random actions to introduce variation into the population. Because adaptive agent strategies are not likely to change wildly from one generation to the next, it is highly recommended to use some value of `ga_seedrep` greater than zero; the default value is 20, which does a good job of finding adaptive strategies.
-#'@param ga_sampleK In the genetic algorithm, fitnesses are assigned to different agent strategies and compete in a tournament to be selected into the next generation. The tournament samples `ga_sampleK` strategies at random and with replacement from the population of `ga_popsize` to be included in the torunament. The default value is 20.
-#'@param ga_chooseK In the genetic algorithm, fitnesses are assigned to different agent strategies and compete in a tournament to be selected into the next generation. The tournament samples `ga_sampleK` strategies at random and with replacement from the population of `ga_popsize` to be included in the torunament, and from these randomly selected strategies, the top `ga_chooseK` strategies are selected. The default value is 2, so the top 10 percent of the random sample in a tournament makes it into the next generation (note that multiple tournaments are run until `ga_popsize` strategies are selected for the next generation). 
+#'@param ga_sampleK In the genetic algorithm, fitnesses are assigned to different agent strategies and compete in a tournament to be selected into the next generation. The tournament samples `ga_sampleK` strategies at random and with replacement from the population of `ga_popsize` to be included in the tournament. The default value is 20.
+#'@param ga_chooseK In the genetic algorithm, fitnesses are assigned to different agent strategies and compete in a tournament to be selected into the next generation. The tournament samples `ga_sampleK` strategies at random and with replacement from the population of `ga_popsize` to be included in the tournament, and from these randomly selected strategies, the top `ga_chooseK` strategies are selected. The default value is 2, so the top 10 percent of the random sample in a tournament makes it into the next generation (note that multiple tournaments are run until `ga_popsize` strategies are selected for the next generation). 
 #'@param ga_mutation In the genetic algorithm, this is the mutation rate of any action within an agent's strategy. When a mutation occurs, the action is either increased or decreased by a value of 1. If the action drops below zero, then the value after mutation is multiplied by -1.
 #'@param ga_crossover In the genetic algorithm, this is the crossover rate of any action within an agent's strategy with a randomly selected different strategy in the population of size `ga_popsize`.
 #'@param move_agents This is a TRUE or FALSE value that defines whether or not agents should move at the end of each time step. The default value is TRUE.
 #'@param max_ages This is the maximum age of resources. If resources reach this age, then they are removed in the resource model with a probability of 1. The default `max_ages` is 5.
 #'@param minimum_cost This is the mimimum cost of any action in the manager and user models. Higher values allow managers to have greater precision when setting policy. For example, managers believe (typically correctly) that they will double culling number by setting the cost of culling at 1 instead of 2. If actions always cost at least some minium value, then some increment just above that value is always available to more precisely affect user actions. Hence it is generally better to simply give everyone a bigger budget and set a minimum cost, giving more precision to managers to fine tune policy. The default value of minimum_cost is therefore set to 10.
-#'@param user_budget This is the total budget of each stakeholder for performing actions. The cost of performing an action is determined by the `miminimum_cost` of actions, and the policy set by the manager. The default `user_budget` is 1000. The maximum budget is 10000.
+#'@param user_budget This is the total budget of each stakeholder for performing actions. The cost of performing an action is determined by the `miminimum_cost` of actions, and the policy set by the manager. The default `user_budget` is 1000. The maximum budget is 100000.
 #'@param manager_budget This is the total budget for the manager when setting policy. Higher budgets make it easier to restrict the actions of stakeholders; lower budgets make it more difficult for managers to limit the actions of stakeholders by setting policy. The default `manager_budget` is 1000. The maximum budget is 10000.
 #'@param manage_target This is the target resource abundance that the manager attempts to keep the population at; the default value is 1000.
 #'@param RESOURCE_ini This is the initial abundance of resources at the start of the simulation; the default is 1000.
@@ -58,19 +58,38 @@
 #'@param manage_caution This value moderates the caution a manager has when changing policy by assuming that at least `manage_caution` of each possible action will always be performed by stakeholders. I manager will therefore not ignore policy for one action because no stakeholder is engaging in it; the default value of `manage_caution` is 1.
 #'@param land_ownership This value defines whether stakeholders own land and their actions are restricted to land that they own. If FALSE, then stakeholders can act on any landscape cell; if TRUE, then agents can only act on their own cells. The default of this value is FALSE.
 #'@param manage_freq This is the frequency with which policy is set by managers; a value of 1 means that policy is set in the manager model every time step; a value of 2 means that poilcy is set in the manager model every other time step, etc. The default value is 1.
-#'@param converge_crit This is the convergence criteria for terminating a genetic algorithm. After continuing for the minimum number of generations, `ga_mingen`, the genetic algorithm will terminate if the convergence criteria is met. Usually making this criteria low doesn't do much to improve adaptive strategies, so the default value is 100, which in practice cases the genetic algorithm to simply terminate after `ga_mingen` generations.
-#'@param manager_sense This adjusts the sensitivity that a manager assumes their actions have with respect to changes in costs (their policy). For example, given a `manage_sense` value of 0.1, if the cost of culling resources doubles, then instead of a manager assuming the the number of culled resources will be cut in half, the manager will instead assume that the number of resources culled will be cut by one half times one tenth. As a general rule, a value of ca 0.1 allows the manager to predict stake-holder responses to policy accurately; future versions of GMSE could allow managers to adjust this dynamically based on simulation history.
-#'@param public_land The proportion of the landscape that will be public, and not owned by stakeholders. The remaining proportion of the landscape will be evenly divided among stakeholders. Note that this option is only available when land_ownership == TRUE.
-#'@param group_think If TRUE, all users will have identical actions; the genetic algorithm will find actions for one user and copy them for all users. This is a useful option if a lot of users are required but variation among user decisions can be ignored.
+#'@param converge_crit This is the convergence criteria for terminating a genetic algorithm. After continuing for the minimum number of generations, `ga_mingen`, the genetic algorithm will terminate if the convergence criteria is met. Usually making this criteria low doesn't do much to improve adaptive strategies; the default value is 1, which means that the genetic algorithm will continue as long as there is greater than a 1 percent increase in strategy fitness.
+#'@param manager_sense This adjusts the sensitivity that a manager assumes their actions have with respect to changes in costs (their policy). For example, given a default `manage_sense` value of 0.9, if the cost of culling resources doubles, then instead of a manager assuming the the number of culled resources per user will be cut in half, the manager will instead assume that the number of resources culled will be cut by one half times eight tenths. As a general rule, a value of ca 0.8 allows the manager to predict stake-holder responses to policy accurately; future versions of GMSE could allow managers to adjust this dynamically based on simulation history.
+#'@param public_land The proportion of the landscape that will be public, and not owned by stakeholders. The remaining proportion of the landscape will be evenly divided among stakeholders. Note that this option is only available when land_ownership == TRUE. The default value is 0.
+#'@param group_think If TRUE, all users will have identical actions; the genetic algorithm will find actions for one user and copy them for all users. This is a useful option if a lot of users are required but variation among user decisions can be ignored. The default value is FALSE.
+#'@param age_repr The age below which resources are incapable of reproducing. The default value is 1.
+#'@param usr_budget_rng This specifies a range around the value of `user_budget`, such that the expected value of each user's budget will be `user_budget`, with a uniform distribution plus or minus `usr_budget_rng`. Note that the minimum `usr_budget_rng` allowed is 1 regardless of the range set, and the maximum is always 100000. The default value for this argument is 0.
+#'@param action_thres A value for the deviation of the estimated population from the manager target, below which manager will not update the policy. Recommended values are between 0 and 1, with the default value being 0.
+#'@param budget_bonus A percentage of the initial budget manager will receive if policy was not updated last time step. Corresponds to the time, energy and money saved by waiting for a better time to update the policy. Budget bonuses are cumulative, so many time steps of not updating policy can cause a compounding increase in the budget bonus. The default value is 0.
+#'@param consume_surv This value defines the amount of yield on a landscape that an individual resource need to consume in a timestep to survive. The default value is 0 (i.e., no consumption is required for survival).
+#'@param consume_repr This value defines the amount of yield on a landscape that an individual resource need to produce one offspring. Resources will produce as many offspring as is possible given their yield in take; e.g., if a resource consumes between three and four times the amount of yield required for reproduction, then they will produce three offspring. The default value is 0 (i.e., no consumption is required for reproduction). 
+#'@param times_feeding Number of searches that resources are allowed per time step for feeding on the landscape. Resources will move between times feeding based on whatever `res_movement` and `res_move_type` parameters are specified.
+#'@param ownership_var Defines the extent to which the amount of land ownership allocated among users varies when `land_ownership = TRUE`. A default value of 0 places roughly equal landscape ownership, while increasing values (must be < 1) cause an exponential distribution of land ownership cell allocation.
+#'@param perceive_scare For a focal user, the perceived effect of scaring one resource on the total number of resources affecting the user (e.g., if -1, then the user perceives scaring as removing the equivalent of one resource from their land; NA by default, and calculated from other argument inputs).
+#'@param perceive_cull  For a focal user, the perceived effect of culling one resource on the total number of resources affecting the user (e.g., if -1, then the user perceives culling as removing the equivalent of one resource; NA by default, and calculated from other argument inputs).
+#'@param perceive_cast For a focal user, the perceived effect of castrating one resource on the total number of resources affecting the user (e.g., if -1, then the user perceives castration as removing the equivalent of one resource; NA by default, and calculated from other argument inputs).
+#'@param perceive_feed For a focal user, the perceived effect of feeding one resource on the total number of resources affecting the user (e.g., if 1, then the user perceives feeding as adding the equivalent of one resource; NA by default, and calculated from other argument inputs).
+#'@param perceive_help For a focal user, the perceived effect of helping the offspring of one resource on the total number of resources affecting the user (e.g., if 1, then the user perceives helping offspring as adding the equivalent of one resource; NA by default, and calculated from other argument inputs).
+#'@param perceive_tend For a focal user, the perceived effect of tending to crops on one cell of owned landscape the user's total crop yield (e.g., if 1, then the user perceives tending crop to increase crop yield on one of their landscape cells by 1; NA by default, and calculated from other argument inputs).
+#'@param perceive_kill For a focal user, the perceived effect of destroying the crops on one cell of owned landscape on the user's total crop yield (e.g., if -1, then the user perceives killing crop to reduce their total crop yield on a landscape cell by 1; unlike other perceived actions, this is not additive. The value defines that absolute effect on crop yield predicted at a single cell, so -1 assumes a 100 per cent loss of yield. This is NA by default).
+#'@param usr_yld_budget An increase in user budget caused by yield on their owned cells. The value of this parameter is multiplied by the user's total yield to get the user's budget increment (default 0). This argument can take any real value, but user budgets are always restricted to being between 1 and 100000. Where yield adjustments result in budgets < 1, the actual budget is set to 1. And where yield adjustments result in budgets > 100000, the actual budget is set to 100000. 
+#'@param man_yld_budget An increase in manager budget caused by mean yield on user owned cells. The value of this parameter is multiplied by the users' mean total yield to get the manager's budget increment (default 0). This argument can take any real value, but manager budgets are always restricted to being between 1 and 100000. Where yield adjustments result in budgets < 1, the actual budget is set to 1. And where yield adjustments result in budgets > 100000, the actual budget is set to 100000. 
 #'@return A large list is returned that includes detailed simulation histories for the resource, observation, management, and user models. This list includes eight elements, most of which are themselves complex lists of arrays: (1) A list of length `time_max` in which each element is an array of resources as they exist at the end of each time step. Resource arrays include all resources and their attributes (e.g., locations, growth rates, offspring, how they are affected by stakeholders, etc.). (2) A list of length `time_max` in which each element is an array of resource observations from the observation model. Observation arrays are similar to resource arrays, except that they can have a smaller number of rows if not all resources are observed, and they have additional columns that show the history of each resource being observed over the course of `times_observe` observations in the observation model. (3) A 2D array showing parameter values at each time step (unique rows); most of these values are static but some (e.g., resource number) change over time steps. (4) A list of length `time_max` in which each element is an array of the landscape that identifies proportion of crop production per cell. This allows for looking at where crop production is increased or decreased over time steps as a consequence of resource and stakeholder actions. (5) The total time the simulation took to run (not counting plotting time). (6) A 2D array of agents and their traits. (7) A list of length `time_max` in which each element is a 3D array of the costs of performing each action for managers and stakeholders (each agent gets its own array layer with an identical number of rows and columns); the change in costs of particular actions can therefore be be examined over time. (8) A list of length `time_max` in which each element is a 3D array of the actions performed by managers and stakeholders (each agent gets its own array layer with an identical number of rows and columns); the change in actions of agents can therefore be examined over time. Because the above lists cannot possibly be interpreted by eye all at once in the simulation output, it is highly recommended that the contents of a simulation be stored and interprted individually if need be; alternativley, simulations can more easily be interpreted through plots when `plotting = TRUE`.
 #'@examples
-#'sim <- gmse(lambda = 0.3, land_ownership = TRUE, time_max = 10);
+#'\dontrun{
+#'sim <- gmse(lambda = 0.4, time_max = 5, plotting = FALSE);
+#'}
 #'@useDynLib GMSE
 #'@importFrom grDevices topo.colors
 #'@importFrom graphics abline axis image mtext par plot points polygon
-#'@importFrom stats rnorm rpois
+#'@importFrom stats rnorm rpois runif
 #'@export
-gmse <- function( time_max       = 100,   # Max number of time steps in sim
+gmse <- function( time_max       = 40,    # Max number of time steps in sim
                   land_dim_1     = 100,   # x dimension of the landscape
                   land_dim_2     = 100,   # y dimension of the landscape
                   res_movement   = 20,    # How far do resources move
@@ -78,19 +97,19 @@ gmse <- function( time_max       = 100,   # Max number of time steps in sim
                   lambda         = 0.30,  # Resource growth rate
                   agent_view     = 10,    # Number cells agent view around them
                   agent_move     = 50,    # Number cells agent can move
-                  res_birth_K    = 10000, # Carrying capacity applied to birth
+                  res_birth_K    = 100000,# Carrying capacity applied to birth
                   res_death_K    = 2000,  # Carrying capacity applied to death
                   edge_effect    = 1,     # What type of edge on the landscape
                   res_move_type  = 1,     # What type of movement for resources
                   res_birth_type = 2,     # What type of birth for resources
                   res_death_type = 2,     # What type of death for resources
                   observe_type   = 0,     # Type of observation used
-                  fixed_mark     = 50,    # How many marked (if obs type = 1)
-                  fixed_recapt   = 150,   # How many recaptured (if type = 1)
+                  fixed_mark     = 100,   # How many marked (if obs type = 1)
+                  fixed_recapt   = 500,   # How many recaptured (if type = 1)
                   times_observe  = 1,     # How many times obs (if type = 0)
                   obs_move_type  = 1,     # Type of movement for agents
                   res_min_age    = 0,     # Minimum age recorded and observed
-                  res_move_obs   = TRUE,  # Move resources while observing
+                  res_move_obs   = FALSE, # Move resources while observing
                   Euclidean_dist = FALSE, # Use Euclidean distance in view
                   plotting       = TRUE,  # Plot the results
                   hunt           = FALSE, # Does the user hunt resources?
@@ -122,23 +141,44 @@ gmse <- function( time_max       = 100,   # Max number of time steps in sim
                   manage_caution = 1,     # Caution rate of the manager
                   land_ownership = FALSE, # Do stake-holders act on their land?
                   manage_freq    = 1,     # Frequency that management enacted
-                  converge_crit  = 100,   # Convergence criteria
-                  manager_sense  = 0.1,   # Manager sensitivity
+                  converge_crit  = 0.1,   # Convergence criteria
+                  manager_sense  = 0.9,   # Manager sensitivity
                   public_land    = 0,     # Proportion of landscape public
-                  group_think    = FALSE  # All users behave identically
+                  group_think    = FALSE, # All users behave identically
+                  age_repr       = 1,     # Age at which resources can reproduce
+                  usr_budget_rng = 0,     # Uniform range of users budgets
+                  action_thres   = 0,     # Managers' policy updating threshold
+                  budget_bonus   = 0,     # Budget saved by not acting
+                  consume_surv   = 0,     # Required consumption for survival
+                  consume_repr   = 0,     # Required consumption to reproduce
+                  times_feeding  = 1,     # Number of searches to feed on land
+                  ownership_var  = 0,     # Does distr. land vary among users?
+                  perceive_scare = NA,    # Users' perception of scaring
+                  perceive_cull  = NA,    # Users' perception of culling
+                  perceive_cast  = NA,    # Users' perception of castration
+                  perceive_feed  = NA,    # Users' perception of feeding
+                  perceive_help  = NA,    # Users' perception of helping offspr.
+                  perceive_tend  = NA,    # Users' perception of tending crops
+                  perceive_kill  = NA,    # Users' perception of killing crops
+                  usr_yld_budget = 0,     # Prop. yield added to user budget
+                  man_yld_budget = 0      # Prop. yield added to man budget
 ){
     
+    time_max <- time_max + 1; # Add to avoid confusion (see loop below)
     if(observe_type  <  0 | observe_type > 3){
         observe_type <- 0;
     }
     if(observe_type == 1){
         times_observe <- 2;
     }
-    if(user_budget > 10000 | manager_budget > 10000){
-        stop("User and manager budgets cannot exceed 10000");
+    if(user_budget > 100000 | manager_budget > 100000){
+        stop("User and manager budgets cannot exceed 100000");
     }
     if(user_budget < 1 | manager_budget < 1){
         stop("User and manager budgets must be at least 1");
+    }
+    if(ownership_var < 0 | ownership_var >= 1){
+        stop("ownership_var needs to be >= 0 and <1");
     }
     
     user_res_opts  <- c(scaring, culling, castration, feeding, help_offspring);
@@ -152,21 +192,18 @@ gmse <- function( time_max       = 100,   # Max number of time steps in sim
     proc_check_start <- proc_start;
     
     # Set the landscape
-    if(land_ownership == TRUE){
-        stake_pr    <- (1 - public_land) / stakeholders;
-        land_alloc  <- c(public_land, rep(x = stake_pr, times = stakeholders));
-    }else{
-        land_alloc  <- c(1, rep(x = 0, times = stakeholders)); 
-    }
-    LANDSCAPE_r  <- make_landscape( model       = pop_model, 
-                                    rows        = land_dim_1, 
-                                    cols        = land_dim_2, 
-                                    cell_types  = 1,
-                                    cell_val_mn = 1,
-                                    cell_val_sd = 0,
-                                    ownership   = 1:(stakeholders + 1),
-                                    owner_pr    = land_alloc
+    LANDSCAPE_r  <- make_landscape( model         = pop_model, 
+                                    rows          = land_dim_1, 
+                                    cols          = land_dim_2, 
+                                    cell_types    = 1,
+                                    cell_val_mn   = 1,
+                                    cell_val_sd   = 0,
+                                    ownership     = land_ownership,
+                                    owners        = stakeholders,
+                                    public_land   = public_land,
+                                    ownership_var = ownership_var
     );
+    
     # Set the starting conditions for one resource
     starting_resources <- make_resource( model              = pop_model, 
                                          resource_quantity  = RESOURCE_ini,
@@ -177,22 +214,46 @@ gmse <- function( time_max       = 100,   # Max number of time steps in sim
                                          rm_pr              = remove_pr,
                                          lambda             = lambda,
                                          consumption_rate   = res_consume,
-                                         max_age            = max_ages[1]
+                                         max_age            = max_ages[1],
+                                         times_feeding      = times_feeding
     );
-    # This will obviously need to be changed -- new function in initialise.R
-    AGENTS   <- make_agents( model        = pop_model,
-                             agent_number = 1 + stakeholders,
-                             type_counts  = c(1, stakeholders),
-                             vision       = agent_view,
-                             rows         = land_dim_1,
-                             cols         = land_dim_2,
-                             move         = agent_move
+
+    AGENTS   <- make_agents( model              = pop_model,
+                             agent_number       = 1 + stakeholders,
+                             type_counts        = c(1, stakeholders),
+                             vision             = agent_view,
+                             rows               = land_dim_1,
+                             cols               = land_dim_2,
+                             move               = agent_move,
+                             scaring            = scaring,
+                             culling            = culling,
+                             castration         = castration,
+                             feeding            = feeding,
+                             help_offspring     = help_offspring,
+                             tend_crops         = tend_crops,
+                             kill_crops         = kill_crops,
+                             perceive_scare     = perceive_scare,
+                             perceive_cull      = perceive_cull,
+                             perceive_cast      = perceive_cast,
+                             perceive_feed      = perceive_feed,
+                             perceive_help      = perceive_help,
+                             perceive_tend      = perceive_tend,
+                             perceive_kill      = perceive_kill,
+                             manager_sense      = manager_sense,
+                             lambda             = lambda,
+                             res_consume        = res_consume,
+                             consume_repr       = consume_repr,
+                             tend_crop_yld      = tend_crop_yld,
+                             landscape          = LANDSCAPE_r
     ); 
     
-    Jacobian <- make_interaction_array(RESOURCES = starting_resources,
-                                       LAND      = LANDSCAPE_r
+    Jacobian <- make_interaction_array(RESOURCES     = starting_resources,
+                                       LAND          = LANDSCAPE_r,
+                                       res_consume   = res_consume,
+                                       consume_surv  = consume_surv,
+                                       consume_repr  = consume_repr,
+                                       times_feeding = times_feeding
     );
-    Jacobian[1,2] <- -1 * res_consume; # Temporary to fix consumption rate
     
     interaction_tabl <- make_interaction_table(starting_resources, LANDSCAPE_r);
     
@@ -218,8 +279,11 @@ gmse <- function( time_max       = 100,   # Max number of time steps in sim
         ACTION[2, 5, stakeholder_rows]   <- 0;
     }
     
-    AGENTS[,17]     <- user_budget;
-    AGENTS[1,17]    <- manager_budget;
+    AGENTS <- manager_user_budgets(agents         = AGENTS, 
+                                   manager_budget = manager_budget, 
+                                   user_budget    = user_budget, 
+                                   usr_budget_rng = usr_budget_rng,
+                                   budget_col     = 17);
     
     time       <- time + 1;  # Ready for the initial time step.
     cells      <- land_dim_1 * land_dim_2; # Number of cells in the landscape
@@ -270,6 +334,15 @@ gmse <- function( time_max       = 100,   # Max number of time steps in sim
     ldo <- land_ownership;
     pub <- public_land;
     gtk <- group_think;
+    a_t <- action_thres;
+    bb  <- budget_bonus;
+    arp <- age_repr;
+    mnb <- manager_budget;
+    csr <- consume_surv;
+    crp <- consume_repr
+    tfe <- times_feeding;
+    ytb <- usr_yld_budget;
+    myb <- man_yld_budget;
 
     paras <- c(time,    # 0. The dynamic time step for each function to use 
                edg,     # 1. The edge effect (0: nothing, 1: torus)
@@ -333,7 +406,7 @@ gmse <- function( time_max       = 100,   # Max number of time steps in sim
                13,      # 59. The tally column of the resource array
                lkr,     # 60. The number of rows in the lookup array
                rsi,     # 61. The number of rows in the observation array
-               ttr+tmo, # 62. The number of cols int he observation array
+               ttr+tmo, # 62. The number of cols in the observation array
                1,       # 63. The ID of the managing agent (usually 1)
                0,       # 64. The layer of ACTION and COST where manager located
                lyr,     # 65. The number of layers in ACTION and COST arrays
@@ -345,11 +418,11 @@ gmse <- function( time_max       = 100,   # Max number of time steps in sim
                7,       # 71. Col actions vary for self individuals in ga
                0,       # 72. Total actions in the action array
                17,      # 73. The column to adjust the castration of a resource
-               0,       # 74. Manager's projected change if resource moved
-               -1*mas*(1+lambda), # 75. Manager's proj change if res killed
-               -1*mas*lambda,     # 76. Manager's proj change if res castrated
-               1*lambda,          # 77. Manager's proj change if reso growth +
-               1*mas,   # 78. Manager's projected change if resource offspring +
+               17,      # 74. Column in agents where perceive scaring goes
+               18,      # 75. Column in agents where perceive culling goes
+               19,      # 76. Column in agents where perceive castration goes
+               20,      # 77. Column in agents where perceive feeding goes
+               21,      # 78. Column in agents where perceive help offspr. goes
                tcy,     # 79. User's improvement of land (proportion)
                1,       # 80. Landscape layer on which crop yield is located
                2,       # 81. Landscape layer on which ownership is defined
@@ -375,7 +448,31 @@ gmse <- function( time_max       = 100,   # Max number of time steps in sim
                gtk,     # 101. Group think behaviour specified?
                fxr,     # 102. The number of recaptures in RMR estimation
                ldo,     # 103. Is there land ownership among stakeholders
-               pub      # 104. How much public land is there (proportion)
+               pub,     # 104. How much public land is there (proportion)
+               a_t,     # 105. Dev est pop from manager target triggering
+               1,       # 106. Was the policy updated last time step?
+               0,       # 107. Time steps since last policy update
+               0,       # 108. Has the Resource population exceeded K?
+               0,       # 109. Deviation from target
+               bb,      # 110. Budget bonus
+               arp,     # 111. Age at which individuals can first reproduce
+               16,      # 112. Column in agent array where budget is located
+               mnb,     # 113. The manager's budget
+               10,      # 114. Column in resource array where offspring located
+               20,      # 115. Column in resource array where consumed located
+               csr,     # 116. Consumption needed for resource to survive
+               crp,     # 117. Consumption needed for resource offspring +1
+               21,      # 118. Column in resource array where fed located
+               0,       # 119. Column of the ID location in the agent array
+               13,      # 120. Column of agent array total ownership located
+               prc,     # 121. E Prop. of a landscape cell to be consumed
+               22,      # 122. Column in agents where perceive tend crops goes
+               23,      # 123. Column in agents where perceive kill crops goes
+               tfe,     # 124. Number of times a resource feeds in a time step
+               ytb,     # 125. Yield to budget parameter for users
+               myb,     # 126. Yield to budget parameter for managers
+               24,      # 127. Column in the agents array where budget bonus is
+               25       # 128. Column in the agents array where yield bonus is
     );
     
     input_list <- c(time_max, land_dim_1, land_dim_2, res_movement, remove_pr,
@@ -390,8 +487,11 @@ gmse <- function( time_max       = 100,   # Max number of time steps in sim
                     scaring, culling, castration, feeding, help_offspring, 
                     tend_crops, tend_crop_yld, kill_crops, stakeholders, 
                     manage_caution, land_ownership, manage_freq, converge_crit, 
-                    manager_sense, public_land, group_think); 
-    
+                    manager_sense, public_land, group_think, age_repr,
+                    usr_budget_rng, action_thres, budget_bonus, consume_surv,
+                    consume_repr, times_feeding, ownership_var, usr_yld_budget, 
+                    man_yld_budget); 
+   
     paras_errors(input_list);
     
     RESOURCE_REC    <- NULL;
@@ -421,7 +521,7 @@ gmse <- function( time_max       = 100,   # Max number of time steps in sim
         RESOURCES             <- RESOURCE_NEW[[1]];
         LANDSCAPE_r           <- RESOURCE_NEW[[2]];
         paras                 <- RESOURCE_NEW[[3]];
- 
+            
         OBSERVATION_NEW   <- observation(RESOURCES      = RESOURCES,
                                          LAND           = LANDSCAPE_r,
                                          PARAS          = paras,
@@ -449,7 +549,7 @@ gmse <- function( time_max       = 100,   # Max number of time steps in sim
                                        move_agents = mva
         );
         AGENTS <- AGENTS_NEW[[1]];
-
+               
         if(time %% manage_freq == 0){
             MANAGER  <- manager(RESOURCES   = RESOURCES,
                                 AGENTS      = AGENTS,
@@ -462,6 +562,7 @@ gmse <- function( time_max       = 100,   # Max number of time steps in sim
                                 OBSERVATION = OBSERVATION_r,
                                 model       = "IBM"
             );
+            AGENTS <- MANAGER[[2]];
             ACTION <- MANAGER[[4]];
             COST   <- MANAGER[[5]];
             paras  <- MANAGER[[6]];
@@ -483,7 +584,7 @@ gmse <- function( time_max       = 100,   # Max number of time steps in sim
         ACTION       <- USERS[[4]];
         COST         <- USERS[[5]];
         paras        <- USERS[[6]];
-        
+         
         RESOURCE_REC[[time]]     <- RESOURCES;
         OBSERVATION_REC[[time]]  <- OBSERVATION_NEW[[1]];
         AGENT_REC[[time]]        <- AGENTS;
@@ -491,7 +592,7 @@ gmse <- function( time_max       = 100,   # Max number of time steps in sim
         COST_REC[[time]]         <- COST;
         ACTION_REC[[time]]       <- ACTION;
         PARAS_REC[time,]         <- paras;
-        
+         
         LANDSCAPE_r <- age_land(LAND          = LANDSCAPE_r, 
                                 landscape_ini = LANDSCAPE_INI, layer = 2);
         
@@ -504,7 +605,7 @@ gmse <- function( time_max       = 100,   # Max number of time steps in sim
         proc_check_end  <- proc.time();
         time_taken      <- proc_check_end - proc_check_start;
         if(time_taken[3] > 5){
-            print(paste("Generation ", time, "of ", time_max));
+            print(paste("Generation ", time - 1, "of ", time_max - 1));
             proc_check_start <- proc.time();
         }
 
@@ -515,8 +616,10 @@ gmse <- function( time_max       = 100,   # Max number of time steps in sim
             RESOURCES    <- HUNT_OUTCOME$RESOURCES;
             paras        <- HUNT_OUTCOME$PARAS;
         }
+        
+        invisible( gc() );
     }
-    
+
     res_columns <- c("Resource_ID",
                      "Resource_type_1",
                      "Resource_type_2",
@@ -536,7 +639,9 @@ gmse <- function( time_max       = 100,   # Max number of time steps in sim
                      "Adjust_growth",
                      "Adjust_grown",
                      "temp_adj1",
-                     "temp_adj2"
+                     "temp_adj2",
+                     "Consumption",
+                     "Extra_col"
     );
     colnames(RESOURCES)    <- res_columns;
     
@@ -601,7 +706,7 @@ gmse <- function( time_max       = 100,   # Max number of time steps in sim
                        paras  = paras);
         }
     }
-
+    
     return(sim_results);
 }
 ################################################################################

@@ -4,8 +4,15 @@
 \alias{gmse_apply}
 \title{GMSE apply function}
 \usage{
-gmse_apply(res_mod = resource, obs_mod = observation, man_mod = manager,
-  use_mod = user, get_res = "basic", old_list = NULL, ...)
+gmse_apply(
+  res_mod = resource,
+  obs_mod = observation,
+  man_mod = manager,
+  use_mod = user,
+  get_res = "basic",
+  old_list = NULL,
+  ...
+)
 }
 \arguments{
 \item{res_mod}{The function specifying the resource model. By default, the individual-based resource model from gmse is called with default parameter values. User-defined functions must either return an unnamed matrix or vector, or return a named list in which one list element is named either 'resource_array' or 'resource_vector', and arrays must follow the format of GMSE in terms of column number and type (if there is only one resource type, then the model can also just return a scalar value).}
@@ -31,7 +38,9 @@ To integrate across different types of submodels, gmse_apply translates between 
 Parameter changes are accommodated by rebuilding data structures whenever necessary. For example, if the number of stakeholders is changed (and by including an argument 'stakeholders' to gmse_apply, it is assumed that stakeholders are changing even the value is identical to what is in the old_list), then a new array of agents will be built. If landscape dimensions are changed (i.e., if the argument 'land_dim_1' or 'land_dim_2' is included), then a new landscape willl be built. For custom defined GMSE sub-functions, arguments passed to '...' will not be found or updated, so changes to arguments of custom functions should be made directly to the 'old_list', or the use of old_list should be avoided.
 }
 \examples{
+\dontrun{
 sim <- gmse_apply();
 sim <- gmse_apply(stakeholders = 2);
 sim <- gmse_apply(obs_mod = function(resource_vector) rnorm(1, resource_vector, 10));
+}
 }

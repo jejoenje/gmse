@@ -4,27 +4,84 @@
 \alias{gmse}
 \title{GMSE simulation}
 \usage{
-gmse(time_max = 100, land_dim_1 = 100, land_dim_2 = 100,
-  res_movement = 20, remove_pr = 0, lambda = 0.3, agent_view = 10,
-  agent_move = 50, res_birth_K = 10000, res_death_K = 2000,
-  edge_effect = 1, res_move_type = 1, res_birth_type = 2,
-  res_death_type = 2, observe_type = 0, fixed_mark = 50,
-  fixed_recapt = 150, times_observe = 1, obs_move_type = 1,
-  res_min_age = 0, res_move_obs = TRUE, Euclidean_dist = FALSE,
-  plotting = TRUE, hunt = FALSE, start_hunting = 95, res_consume = 0.5,
-  ga_popsize = 100, ga_mingen = 40, ga_seedrep = 20, ga_sampleK = 20,
-  ga_chooseK = 2, ga_mutation = 0.1, ga_crossover = 0.1,
-  move_agents = TRUE, max_ages = 5, minimum_cost = 10,
-  user_budget = 1000, manager_budget = 1000, manage_target = 1000,
-  RESOURCE_ini = 1000, scaring = FALSE, culling = TRUE,
-  castration = FALSE, feeding = FALSE, help_offspring = FALSE,
-  tend_crops = FALSE, tend_crop_yld = 0.2, kill_crops = FALSE,
-  stakeholders = 4, manage_caution = 1, land_ownership = FALSE,
-  manage_freq = 1, converge_crit = 100, manager_sense = 0.1,
-  public_land = 0, group_think = FALSE)
+gmse(
+  time_max = 40,
+  land_dim_1 = 100,
+  land_dim_2 = 100,
+  res_movement = 20,
+  remove_pr = 0,
+  lambda = 0.3,
+  agent_view = 10,
+  agent_move = 50,
+  res_birth_K = 1e+05,
+  res_death_K = 2000,
+  edge_effect = 1,
+  res_move_type = 1,
+  res_birth_type = 2,
+  res_death_type = 2,
+  observe_type = 0,
+  fixed_mark = 100,
+  fixed_recapt = 500,
+  times_observe = 1,
+  obs_move_type = 1,
+  res_min_age = 0,
+  res_move_obs = FALSE,
+  Euclidean_dist = FALSE,
+  plotting = TRUE,
+  hunt = FALSE,
+  start_hunting = 95,
+  res_consume = 0.5,
+  ga_popsize = 100,
+  ga_mingen = 40,
+  ga_seedrep = 20,
+  ga_sampleK = 20,
+  ga_chooseK = 2,
+  ga_mutation = 0.1,
+  ga_crossover = 0.1,
+  move_agents = TRUE,
+  max_ages = 5,
+  minimum_cost = 10,
+  user_budget = 1000,
+  manager_budget = 1000,
+  manage_target = 1000,
+  RESOURCE_ini = 1000,
+  scaring = FALSE,
+  culling = TRUE,
+  castration = FALSE,
+  feeding = FALSE,
+  help_offspring = FALSE,
+  tend_crops = FALSE,
+  tend_crop_yld = 0.2,
+  kill_crops = FALSE,
+  stakeholders = 4,
+  manage_caution = 1,
+  land_ownership = FALSE,
+  manage_freq = 1,
+  converge_crit = 0.1,
+  manager_sense = 0.9,
+  public_land = 0,
+  group_think = FALSE,
+  age_repr = 1,
+  usr_budget_rng = 0,
+  action_thres = 0,
+  budget_bonus = 0,
+  consume_surv = 0,
+  consume_repr = 0,
+  times_feeding = 1,
+  ownership_var = 0,
+  perceive_scare = NA,
+  perceive_cull = NA,
+  perceive_cast = NA,
+  perceive_feed = NA,
+  perceive_help = NA,
+  perceive_tend = NA,
+  perceive_kill = NA,
+  usr_yld_budget = 0,
+  man_yld_budget = 0
+)
 }
 \arguments{
-\item{time_max}{This value sets the maximum number of time steps for a simulation. There are no constraints for length of time that a simulation can run. The default is 100 time steps.}
+\item{time_max}{This value sets the maximum number of time steps for a simulation. There are no constraints for length of time that a simulation can run. The default is 40 time steps.}
 
 \item{land_dim_1}{This value sets the number of cells on the x dimension of the landscape (i.e., the number of columns in the landscape array; this can also be thought of as the x-axis when the landscape image is plotted). There is no maximum, but the minimum dimension of a landscape is 2 cells. The default is 100 cells.}
 
@@ -32,7 +89,7 @@ gmse(time_max = 100, land_dim_1 = 100, land_dim_2 = 100,
 
 \item{res_movement}{This value determines how far resources move during a time step. Exact movement is probabilistic and partly affected by `res_move_type` settings. Under default settings, during each time step, resources move from zero to res_movement cells away from their starting cell in any direction. Hence res_movement is the maximum distance away from a resources starting cell that it can move in a time step; other types of resource movement, however, interpret res_movement differently to get the raw distance moved (see res_move_type). The default value is 20.}
 
-\item{remove_pr}{This value is the density-independent and user-independent probability of a resource being removed (e.g., dying) during a time step in the resource model. Under default settings, this value is set to zero, with resource removal being determined entirely by carrying capcity on resource survival, and by user actions.}
+\item{remove_pr}{This value is the density-independent and user-independent probability of a resource being removed (e.g., dying) during a time step in the resource model. Under default settings, this value is set to zero, with resource removal being determined entirely by carrying capacity on resource survival, and by user actions.}
 
 \item{lambda}{This value is the baseline population growth rate of resources. Each resource in the simulation produces Poisson(lambda) offspring in one time step within the resource model. The value of lambda might be increased or decreased by user actions, and juvenile survival can potentially be decreased by a carrying capacity placed on birth. The default value is 0.3, meaning that the average resource produces one offspring every three time steps.}
 
@@ -40,7 +97,7 @@ gmse(time_max = 100, land_dim_1 = 100, land_dim_2 = 100,
 
 \item{agent_move}{This value determines how far agents can move. At the moment, this does not affect much in the simulation because agent movement does not affect agent actions (interactions with resources can be limited to stakeholder's owned land, but do not currently depend on where an agent is on the landscape -- effectively assuming that agents are mobile enough to do what they want to do to resources). The one exception is for density-based estimation, which can be biased by low values of agent_move by causing the manager to sample the same (or nearby) landscape cells to estimate total resource abundance; if resources are spatially autocorrelated, then managers might over or under-estimate total abundance. Therefore, as a default, this value is set to 50 so that managers can move to any cell on a (torus) landscape in a time step, removing any bias for density sampling.}
 
-\item{res_birth_K}{This value is the carrying capacity on new resources added per time step (e.g., birth). If more offspring are born in a time step than res_birth_K, then offspring are randomly removed from the population until offspring born equals res_birth_K. By default, carrying capacity is effectively applied to death instead of birth, so the default value of res_birth_K is set to 10000 (and hence not enacted because the number of births is never this high).}
+\item{res_birth_K}{This value is the carrying capacity on new resources added per time step (e.g., birth). If more offspring are born in a time step than res_birth_K, then offspring are randomly removed from the population until offspring born equals res_birth_K. By default, carrying capacity is effectively applied to death instead of birth, so the default value of res_birth_K is set to 100000 (and hence not enacted because the number of births is never this high).}
 
 \item{res_death_K}{This value is the carrying capacity on resources in the population. Carrying capacity is realised by an increase in mortality probability as resource abundance approaches res_death_K. In each time step, realised mortality probability equals the number of resources over carrying capacity divided by the number of resources (i.e., [resource count - carrying capacity] / resource count). Hence, as the resource abundance increases above carrying capcity, mortality probability also increases in proportion, generating some stochasticity in resource survival. Note that carrying capacity is independent of user actions; if a user culls a resource this culling is applied after mortality probability due to carrying capacity has already been calculated. The default value for res_death_K is 2000.}
 
@@ -52,7 +109,7 @@ gmse(time_max = 100, land_dim_1 = 100, land_dim_2 = 100,
 
 \item{res_death_type}{The type of resource removal (death) that occurs. A value of (1) causes death to be entirely density-independent and with a probability of `removal_pr` for each resource (which may be further affected by agent actions or interactions with landscape cells). A value of (2) causes death to be entirely density-dependent (though potentially independently affected by agents and landscape), with mortality probability calculated based on the carrying capacity `res_death_K` set in as an argument in gmse simulations. A value of (3) allows for both density-dependent (affected by `res_death_K`) and density-independent (affected by `removal_pr`) effects on resource removal. The default `res_death_type` is (2); values of (1) must be used carefully because it can result in exponential growth that leads to massive population sizes that slow down simulations.}
 
-\item{observe_type}{The type of observation sampling of resources being done by managers in the observation model. There are currently four options for sampling. (0) Density-based sampling, in which managers sample all resources within some subset of the landscape; the size of this subset is all of the resources within a distance of `agent_view` from the cell of the manager. Managers sample `times_observe` subsets, where `times_observe` is a parameter value set in the gmse simulation. Managers then extrapolate the density of resources in the subset to estimate the total number of resources on a landscape. (1) Mark-recapture estimate of the popuation, in which managers randomly sample `times_observe` resources in the population without any spatial bias (if there are fewer than `times_observe` resources, managers sample all resources) `times_observe` times with replacement. The first `fixed_observe` times are interpreted as marks, while the remaining times are interpreted as recaptures (note that `fixed_observe` must be less than `times_observe`). Hence if a resource is observed at any time in `fixed_observe` independent observations, then it is considered marked; if it is observed again at any time in `times_observe - fixed_observe` independent observations, then it is considered recaptured. A Chapman estimate is used in the manager model to estimate population size from these observation data. (2) Transect-based sampling (linear), in which a manager samples an entire row of the landscape and counts the resources on the row, then moves onto the next row of the landscape until the entire landscape has been covered. The number of cells in each row (i.e., the height) equals `agent_view`, so fewer transects are needed if agents can see farther. If `res_move_obs == TRUE`, then resources can move on the landscape between each transect sampling, potentially causing observation error if some resources are double counted or not counted at all due to movement. If `res_move_obs == FALSE`, then this type of observation should produce no error, and resource estimation will be exact. (3) Transect-based sampling (block), in which a manager samples a block of the landscape and counts the resources in the block, then moves on to the next (equally sized) block until the entire landscape has been covered. Blocks are square, with the length of each side equaling `agent_view`, so fewer blocks are needed if agents can see farther. If `res_move_obs == TRUE`, then resources can move on the landscape between each block sampling, potentially causing observation error if some resources are double counted or not counted at all due to movement. If `res_move_obs == FALSE`, then this type of observation should produce no error, and resource estimation will be exact. The default observation type is 0 for density-based sampling.}
+\item{observe_type}{The type of observation sampling of resources being done by managers in the observation model. There are currently four options for sampling. (0) Density-based sampling, in which managers sample all resources within some subset of the landscape; the size of this subset is all of the resources within a distance of `agent_view` from the cell of the manager. Managers sample `times_observe` subsets, where `times_observe` is a parameter value set in the gmse simulation. Managers then extrapolate the density of resources in the subset to estimate the total number of resources on a landscape. (1) Mark-recapture estimate of the popluation, in which managers randomly sample `fixed_mark` resources (without replacement) in the population without any spatial bias (if there are fewer than `fixed_mark` resources, managers sample all resources). The manager then randomly samples `fixed_recapt` resources (without replacement), again without any spatial bias. A Chapman estimate is then used in the manager model to estimate population size from these mark-recapture data. (2) Transect-based sampling (linear), in which a manager samples an entire row of the landscape and counts the resources on the row, then moves onto the next row of the landscape until the entire landscape has been covered. The number of cells in each row (i.e., the height) equals `agent_view`, so fewer transects are needed if agents can see farther. If `res_move_obs == TRUE`, then resources can move on the landscape between each transect sampling, potentially causing observation error if some resources are double counted or not counted at all due to movement. If `res_move_obs == FALSE`, then this type of observation should produce no error, and resource estimation will be exact. (3) Transect-based sampling (block), in which a manager samples a block of the landscape and counts the resources in the block, then moves on to the next (equally sized) block until the entire landscape has been covered. Blocks are square, with the length of each side equaling `agent_view`, so fewer blocks are needed if agents can see farther. If `res_move_obs == TRUE`, then resources can move on the landscape between each block sampling, potentially causing observation error if some resources are double counted or not counted at all due to movement. If `res_move_obs == FALSE`, then this type of observation should produce no error, and resource estimation will be exact. The default observation type is 0 for density-based sampling.}
 
 \item{fixed_mark}{This parameter affects mark-recapture observation (i.e., applies only when observe_type == 1). Its value defines how many resources will be marked in each time step as part of a mark-recapture population size estimate.}
 
@@ -78,13 +135,13 @@ gmse(time_max = 100, land_dim_1 = 100, land_dim_2 = 100,
 
 \item{ga_popsize}{The size of populations of agents in the genetic algorithm (not resources in the simulation). The actions of each agent in the simulation are duplicated `ga_popsize` times, and this population of individual agent actions undergoes a process of natural selection to find an adaptive strategy. Selection is naturally stronger in larger populations, but a default population size of 100 is more than sufficient to find adaptive strategies.}
 
-\item{ga_mingen}{The minimum number of generations in the genetic algorithms of the simulation (*not* the number of time steps in the simulation itself). The actions of each agent in the simulation are duplicated `ga_popsize` times, and this population of individual agent actions undergoes a process of natural selection at least `ga_mingen` times to find an adaptive strategy. If convergence criteria `converge_crit` is set to a default value of 100, then the genetic algorithm will almost always continue for exactly `ga_mingen` generations. The default value is 20, which is usually plenty for finding adaptive agent strategies -- the objective is not to find optimal strategies, but strategies that are strongly in line with agent interests.}
+\item{ga_mingen}{The minimum number of generations in the genetic algorithms of the simulation (*not* the number of time steps in the simulation itself). The actions of each agent in the simulation are duplicated `ga_popsize` times, and this population of individual agent actions undergoes a process of natural selection at least `ga_mingen` times to find an adaptive strategy. If convergence criteria `converge_crit` is set to a default value of 100, then the genetic algorithm will almost always continue for exactly `ga_mingen` generations. The default value is 40, which is usually plenty for finding adaptive agent strategies -- the objective is not to find optimal strategies, but strategies that are strongly in line with agent interests.}
 
 \item{ga_seedrep}{At the start of each genetic algorithm, `ga_popsize` replicate agents are produced; `ga_seedrep` of these replicates are *exact* replicates, while the rest have random actions to introduce variation into the population. Because adaptive agent strategies are not likely to change wildly from one generation to the next, it is highly recommended to use some value of `ga_seedrep` greater than zero; the default value is 20, which does a good job of finding adaptive strategies.}
 
-\item{ga_sampleK}{In the genetic algorithm, fitnesses are assigned to different agent strategies and compete in a tournament to be selected into the next generation. The tournament samples `ga_sampleK` strategies at random and with replacement from the population of `ga_popsize` to be included in the torunament. The default value is 20.}
+\item{ga_sampleK}{In the genetic algorithm, fitnesses are assigned to different agent strategies and compete in a tournament to be selected into the next generation. The tournament samples `ga_sampleK` strategies at random and with replacement from the population of `ga_popsize` to be included in the tournament. The default value is 20.}
 
-\item{ga_chooseK}{In the genetic algorithm, fitnesses are assigned to different agent strategies and compete in a tournament to be selected into the next generation. The tournament samples `ga_sampleK` strategies at random and with replacement from the population of `ga_popsize` to be included in the torunament, and from these randomly selected strategies, the top `ga_chooseK` strategies are selected. The default value is 2, so the top 10 percent of the random sample in a tournament makes it into the next generation (note that multiple tournaments are run until `ga_popsize` strategies are selected for the next generation).}
+\item{ga_chooseK}{In the genetic algorithm, fitnesses are assigned to different agent strategies and compete in a tournament to be selected into the next generation. The tournament samples `ga_sampleK` strategies at random and with replacement from the population of `ga_popsize` to be included in the tournament, and from these randomly selected strategies, the top `ga_chooseK` strategies are selected. The default value is 2, so the top 10 percent of the random sample in a tournament makes it into the next generation (note that multiple tournaments are run until `ga_popsize` strategies are selected for the next generation).}
 
 \item{ga_mutation}{In the genetic algorithm, this is the mutation rate of any action within an agent's strategy. When a mutation occurs, the action is either increased or decreased by a value of 1. If the action drops below zero, then the value after mutation is multiplied by -1.}
 
@@ -96,7 +153,7 @@ gmse(time_max = 100, land_dim_1 = 100, land_dim_2 = 100,
 
 \item{minimum_cost}{This is the mimimum cost of any action in the manager and user models. Higher values allow managers to have greater precision when setting policy. For example, managers believe (typically correctly) that they will double culling number by setting the cost of culling at 1 instead of 2. If actions always cost at least some minium value, then some increment just above that value is always available to more precisely affect user actions. Hence it is generally better to simply give everyone a bigger budget and set a minimum cost, giving more precision to managers to fine tune policy. The default value of minimum_cost is therefore set to 10.}
 
-\item{user_budget}{This is the total budget of each stakeholder for performing actions. The cost of performing an action is determined by the `miminimum_cost` of actions, and the policy set by the manager. The default `user_budget` is 1000. The maximum budget is 10000.}
+\item{user_budget}{This is the total budget of each stakeholder for performing actions. The cost of performing an action is determined by the `miminimum_cost` of actions, and the policy set by the manager. The default `user_budget` is 1000. The maximum budget is 100000.}
 
 \item{manager_budget}{This is the total budget for the manager when setting policy. Higher budgets make it easier to restrict the actions of stakeholders; lower budgets make it more difficult for managers to limit the actions of stakeholders by setting policy. The default `manager_budget` is 1000. The maximum budget is 10000.}
 
@@ -128,13 +185,47 @@ gmse(time_max = 100, land_dim_1 = 100, land_dim_2 = 100,
 
 \item{manage_freq}{This is the frequency with which policy is set by managers; a value of 1 means that policy is set in the manager model every time step; a value of 2 means that poilcy is set in the manager model every other time step, etc. The default value is 1.}
 
-\item{converge_crit}{This is the convergence criteria for terminating a genetic algorithm. After continuing for the minimum number of generations, `ga_mingen`, the genetic algorithm will terminate if the convergence criteria is met. Usually making this criteria low doesn't do much to improve adaptive strategies, so the default value is 100, which in practice cases the genetic algorithm to simply terminate after `ga_mingen` generations.}
+\item{converge_crit}{This is the convergence criteria for terminating a genetic algorithm. After continuing for the minimum number of generations, `ga_mingen`, the genetic algorithm will terminate if the convergence criteria is met. Usually making this criteria low doesn't do much to improve adaptive strategies; the default value is 1, which means that the genetic algorithm will continue as long as there is greater than a 1 percent increase in strategy fitness.}
 
-\item{manager_sense}{This adjusts the sensitivity that a manager assumes their actions have with respect to changes in costs (their policy). For example, given a `manage_sense` value of 0.1, if the cost of culling resources doubles, then instead of a manager assuming the the number of culled resources will be cut in half, the manager will instead assume that the number of resources culled will be cut by one half times one tenth. As a general rule, a value of ca 0.1 allows the manager to predict stake-holder responses to policy accurately; future versions of GMSE could allow managers to adjust this dynamically based on simulation history.}
+\item{manager_sense}{This adjusts the sensitivity that a manager assumes their actions have with respect to changes in costs (their policy). For example, given a default `manage_sense` value of 0.9, if the cost of culling resources doubles, then instead of a manager assuming the the number of culled resources per user will be cut in half, the manager will instead assume that the number of resources culled will be cut by one half times eight tenths. As a general rule, a value of ca 0.8 allows the manager to predict stake-holder responses to policy accurately; future versions of GMSE could allow managers to adjust this dynamically based on simulation history.}
 
-\item{public_land}{The proportion of the landscape that will be public, and not owned by stakeholders. The remaining proportion of the landscape will be evenly divided among stakeholders. Note that this option is only available when land_ownership == TRUE.}
+\item{public_land}{The proportion of the landscape that will be public, and not owned by stakeholders. The remaining proportion of the landscape will be evenly divided among stakeholders. Note that this option is only available when land_ownership == TRUE. The default value is 0.}
 
-\item{group_think}{If TRUE, all users will have identical actions; the genetic algorithm will find actions for one user and copy them for all users. This is a useful option if a lot of users are required but variation among user decisions can be ignored.}
+\item{group_think}{If TRUE, all users will have identical actions; the genetic algorithm will find actions for one user and copy them for all users. This is a useful option if a lot of users are required but variation among user decisions can be ignored. The default value is FALSE.}
+
+\item{age_repr}{The age below which resources are incapable of reproducing. The default value is 1.}
+
+\item{usr_budget_rng}{This specifies a range around the value of `user_budget`, such that the expected value of each user's budget will be `user_budget`, with a uniform distribution plus or minus `usr_budget_rng`. Note that the minimum `usr_budget_rng` allowed is 1 regardless of the range set, and the maximum is always 100000. The default value for this argument is 0.}
+
+\item{action_thres}{A value for the deviation of the estimated population from the manager target, below which manager will not update the policy. Recommended values are between 0 and 1, with the default value being 0.}
+
+\item{budget_bonus}{A percentage of the initial budget manager will receive if policy was not updated last time step. Corresponds to the time, energy and money saved by waiting for a better time to update the policy. Budget bonuses are cumulative, so many time steps of not updating policy can cause a compounding increase in the budget bonus. The default value is 0.}
+
+\item{consume_surv}{This value defines the amount of yield on a landscape that an individual resource need to consume in a timestep to survive. The default value is 0 (i.e., no consumption is required for survival).}
+
+\item{consume_repr}{This value defines the amount of yield on a landscape that an individual resource need to produce one offspring. Resources will produce as many offspring as is possible given their yield in take; e.g., if a resource consumes between three and four times the amount of yield required for reproduction, then they will produce three offspring. The default value is 0 (i.e., no consumption is required for reproduction).}
+
+\item{times_feeding}{Number of searches that resources are allowed per time step for feeding on the landscape. Resources will move between times feeding based on whatever `res_movement` and `res_move_type` parameters are specified.}
+
+\item{ownership_var}{Defines the extent to which the amount of land ownership allocated among users varies when `land_ownership = TRUE`. A default value of 0 places roughly equal landscape ownership, while increasing values (must be < 1) cause an exponential distribution of land ownership cell allocation.}
+
+\item{perceive_scare}{For a focal user, the perceived effect of scaring one resource on the total number of resources affecting the user (e.g., if -1, then the user perceives scaring as removing the equivalent of one resource from their land; NA by default, and calculated from other argument inputs).}
+
+\item{perceive_cull}{For a focal user, the perceived effect of culling one resource on the total number of resources affecting the user (e.g., if -1, then the user perceives culling as removing the equivalent of one resource; NA by default, and calculated from other argument inputs).}
+
+\item{perceive_cast}{For a focal user, the perceived effect of castrating one resource on the total number of resources affecting the user (e.g., if -1, then the user perceives castration as removing the equivalent of one resource; NA by default, and calculated from other argument inputs).}
+
+\item{perceive_feed}{For a focal user, the perceived effect of feeding one resource on the total number of resources affecting the user (e.g., if 1, then the user perceives feeding as adding the equivalent of one resource; NA by default, and calculated from other argument inputs).}
+
+\item{perceive_help}{For a focal user, the perceived effect of helping the offspring of one resource on the total number of resources affecting the user (e.g., if 1, then the user perceives helping offspring as adding the equivalent of one resource; NA by default, and calculated from other argument inputs).}
+
+\item{perceive_tend}{For a focal user, the perceived effect of tending to crops on one cell of owned landscape the user's total crop yield (e.g., if 1, then the user perceives tending crop to increase crop yield on one of their landscape cells by 1; NA by default, and calculated from other argument inputs).}
+
+\item{perceive_kill}{For a focal user, the perceived effect of destroying the crops on one cell of owned landscape on the user's total crop yield (e.g., if -1, then the user perceives killing crop to reduce their total crop yield on a landscape cell by 1; unlike other perceived actions, this is not additive. The value defines that absolute effect on crop yield predicted at a single cell, so -1 assumes a 100 per cent loss of yield. This is NA by default).}
+
+\item{usr_yld_budget}{An increase in user budget caused by yield on their owned cells. The value of this parameter is multiplied by the user's total yield to get the user's budget increment (default 0). This argument can take any real value, but user budgets are always restricted to being between 1 and 100000. Where yield adjustments result in budgets < 1, the actual budget is set to 1. And where yield adjustments result in budgets > 100000, the actual budget is set to 100000.}
+
+\item{man_yld_budget}{An increase in manager budget caused by mean yield on user owned cells. The value of this parameter is multiplied by the users' mean total yield to get the manager's budget increment (default 0). This argument can take any real value, but manager budgets are always restricted to being between 1 and 100000. Where yield adjustments result in budgets < 1, the actual budget is set to 1. And where yield adjustments result in budgets > 100000, the actual budget is set to 100000.}
 }
 \value{
 A large list is returned that includes detailed simulation histories for the resource, observation, management, and user models. This list includes eight elements, most of which are themselves complex lists of arrays: (1) A list of length `time_max` in which each element is an array of resources as they exist at the end of each time step. Resource arrays include all resources and their attributes (e.g., locations, growth rates, offspring, how they are affected by stakeholders, etc.). (2) A list of length `time_max` in which each element is an array of resource observations from the observation model. Observation arrays are similar to resource arrays, except that they can have a smaller number of rows if not all resources are observed, and they have additional columns that show the history of each resource being observed over the course of `times_observe` observations in the observation model. (3) A 2D array showing parameter values at each time step (unique rows); most of these values are static but some (e.g., resource number) change over time steps. (4) A list of length `time_max` in which each element is an array of the landscape that identifies proportion of crop production per cell. This allows for looking at where crop production is increased or decreased over time steps as a consequence of resource and stakeholder actions. (5) The total time the simulation took to run (not counting plotting time). (6) A 2D array of agents and their traits. (7) A list of length `time_max` in which each element is a 3D array of the costs of performing each action for managers and stakeholders (each agent gets its own array layer with an identical number of rows and columns); the change in costs of particular actions can therefore be be examined over time. (8) A list of length `time_max` in which each element is a 3D array of the actions performed by managers and stakeholders (each agent gets its own array layer with an identical number of rows and columns); the change in actions of agents can therefore be examined over time. Because the above lists cannot possibly be interpreted by eye all at once in the simulation output, it is highly recommended that the contents of a simulation be stored and interprted individually if need be; alternativley, simulations can more easily be interpreted through plots when `plotting = TRUE`.
@@ -146,5 +237,7 @@ models in each time step. Hence while individual models can be used on their
 own, gmse() is really all that is needed to run a simulation.
 }
 \examples{
-sim <- gmse(lambda = 0.3, land_ownership = TRUE, time_max = 10);
+\dontrun{
+sim <- gmse(lambda = 0.4, time_max = 5, plotting = FALSE);
+}
 }

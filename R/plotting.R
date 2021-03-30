@@ -140,7 +140,7 @@ case23plot <- function(res, obs, land1, land2, land3, agents, paras, COST,
     lnds <- NULL;
     ages <- NULL;
     land_cols <- c("#F2F2F2FF", "#ECB176FF", "#000000"); 
-    cols      <- c("green", "indianred1", "indianred3", "deepskyblue1",
+    cols      <- c("green", "firebrick1", "firebrick4", "deepskyblue1",
                    "deepskyblue2");
     
     max_action <- 0;
@@ -160,12 +160,15 @@ case23plot <- function(res, obs, land1, land2, land3, agents, paras, COST,
             max_cost <- gen_max_cost;
         }
     }
-    
-    minK <- min(paras[6:7]);
-    
-    ymaxi    <- minK + (minK * (1 + res[[1]][1,10])); # Add for birth rate
+    if(paras[5] > 1){
+        minK  <- min(paras[6:7]);
+        ymaxi <- minK + (minK * (1 + res[[1]][1,10])); # Add for birth rate
+    }else{
+        minK  <- max(unlist(lapply(X = res, FUN = dim)));
+        ymaxi <- minK + 0.1 * minK;
+    }
     time_max <- length(res);
-    for(i in 1:(time_max-1)){
+    for(i in 1:(time_max)){
         res_t    <- res[[i]];
         obs_t    <- obs[[i]];
         lnd_t    <- land2[[i]] * 100;
@@ -184,21 +187,29 @@ case23plot <- function(res, obs, land1, land2, land3, agents, paras, COST,
         # ------------- Panel 2 (upper right)
         col_num <- max(land3);
         image(land3, col=topo.colors(col_num), xaxt="n", yaxt="n");    
-        # ------------- Panel 3 (lower left)
+        # ------------- Panel 3 (middle left)
         par(mar=c(4,4,1,4));
         plot(x=gens, y=abun, pch=20, type="l", lwd=2, ylim=c(0, ymaxi),
              xlim=c(0,time_max), xlab="Time Step", ylab="Abundance",
-             cex.lab=1.25);
+             cex.lab=1.25, yaxs="i");
         new_est   <- sum(obs_t[,13]);
         est       <- c(est, new_est);
         points(x=gens, y=est, pch=20, type="l", lwd=2, col="cyan4");
-        abline(h=paras[7], col="red", lwd=0.8, lty="dashed");
+        if(paras[5] > 1){
+            abline(h=paras[7], col="red", lwd=0.8, lty="dashed");
+        }    
         abline(h=ACTION[[1]][1,5,1], col=topo.colors(1), lwd=0.8, lty="dashed");
+        if (paras[106] > 0) {
+          abline(h=ACTION[[1]][1,5,1]*(1+paras[106]), col="darkgreen", lwd=0.8, 
+                 lty="dashed");    # can be improved, from the arguments?
+          abline(h=ACTION[[1]][1,5,1]*(1-paras[106]), col="darkgreen", lwd=0.8, 
+                 lty="dashed");
+        }
         points(x=gens, y=abun, pch=20, type="l", lwd=3, col="black");
         par(new=TRUE);
         plot(x=gens, y=lnds, pch=20, type="l", lwd=3, col="orange", xlab = "",
              xlim=c(0, time_max), ylim = c(0, 100), xaxt="n", yaxt="n", 
-             ylab = "");
+             ylab = "", yaxs="i");
         axis(side=4, at=c(0, 25, 50, 75, 100));
         mtext("Mean % Yield", side = 4, line = 2.4);
         # ------------ Panel 4 (middle right);
@@ -206,7 +217,7 @@ case23plot <- function(res, obs, land1, land2, land3, agents, paras, COST,
         cell_number <- dim(land3)[1] * dim(land3)[2];
         plot(x=gens, y=gens, pch=20, type="n", lwd=2, ylim=c(0, 100),
              xlim=c(0,time_max), xlab="Time Step", ylab="Stake-holder % yield",
-             cex.lab=1.25);
+             cex.lab=1.25, yaxs="i");
         stake_colors <- topo.colors( dim(age_t)[1] );
         for(stakeholder in 1:dim(ages)[2]){
             max_yield   <- sum(land3 == stakeholder);
@@ -229,7 +240,7 @@ case23plot <- function(res, obs, land1, land2, land3, agents, paras, COST,
         y_upper_limit <- max_cost + (0.25 * max_cost);
         plot(x=gens, y=gens, pch=20, type="n", lwd=2, ylim=c(0, y_upper_limit),
              xlim=c(0,time_max), xlab="Time Step", ylab="Cost of actions",
-             cex.lab=1.25);
+             cex.lab=1.25, yaxs="i");
         if(paras[89] == 1){
             points(x=gens, y=res_costs[,1], type="l", col=cols[1], lwd=2);
         }
@@ -267,7 +278,7 @@ case23plot <- function(res, obs, land1, land2, land3, agents, paras, COST,
         y_upper_limit <- max_action + (0.25 * max_action);
         plot(x=gens, y=gens, pch=20, type="n", lwd=2, ylim=c(0, y_upper_limit),
              xlim=c(0,time_max), xlab="Time Step", ylab="Actions made",
-             cex.lab=1.25);
+             cex.lab = 1.25, yaxs = "i");
         if(paras[89] == 1){
             points(x=gens, y=res_acts[,1], type="l", col=cols[1], lwd=2);
         }
@@ -337,7 +348,7 @@ case01plot <- function(res, obs, land1, land2, land3, agents, paras, ACTION,
     lnds <- NULL;
     ages <- NULL;
     land_cols <- c("#F2F2F2FF", "#ECB176FF", "#000000"); 
-    cols      <- c("green", "indianred1", "indianred3", "deepskyblue1",
+    cols      <- c("green", "firebrick1", "firebrick4", "deepskyblue1",
                    "deepskyblue2");
    
     case  <- paras[9];
@@ -365,12 +376,15 @@ case01plot <- function(res, obs, land1, land2, land3, agents, paras, ACTION,
             max_cost <- gen_max_cost;
         }
     }
-    
-    minK <- min(paras[6:7]);
-    
-    ymaxi    <- minK + (minK * (1 + res[[1]][1,10])); # Add for birth rate
+    if(paras[5] > 1){
+      minK  <- min(paras[6:7]);
+      ymaxi <- minK + (minK * (1 + res[[1]][1,10])); # Add for birth rate
+    }else{
+      minK  <- max(unlist(lapply(X = res, FUN = dim)));
+      ymaxi <- minK + 0.1 * minK;
+    }
     time_max <- length(res);
-    for(i in 1:(time_max-1)){
+    for(i in 1:(time_max)){
         res_t    <- res[[i]];
         obs_t    <- obs[[i]];
         lnd_t    <- land2[[i]] * 100;
@@ -397,7 +411,7 @@ case01plot <- function(res, obs, land1, land2, land3, agents, paras, ACTION,
         par(mar=c(4,5,1,5));
         plot(x=gens, y=abun, pch=20, type="l", lwd=2, ylim=c(0, ymaxi),
              xlim=c(0,time_max), xlab="Time Step", ylab="Abundance",
-             cex.lab=1.25);
+             cex.lab=1.25, yaxs="i");
         if(!is.null(obs_t) & case == 1){
             analysis <- chapman_est(observation=obs_t, paras = paras);
             est      <- c(est, analysis$Nc);
@@ -414,13 +428,21 @@ case01plot <- function(res, obs, land1, land2, land3, agents, paras, ACTION,
         polygon(y=c(lci,rev(uci)),x=c(gens,rev(gens)), border=NA,
                 col="lightblue");
         points(x=gens, y=est, pch=20, type="l", lwd=2, col="cyan4");
-        abline(h=paras[7], col="red", lwd=0.8, lty="dashed");
+        if(paras[5] > 1){
+          abline(h=paras[7], col="red", lwd=0.8, lty="dashed");
+        }    
         abline(h=ACTION[[1]][1,5,1], col=topo.colors(1), lwd=0.8, lty="dashed");
+        if (paras[106] > 0) {
+          abline(h=ACTION[[1]][1,5,1]*(1+paras[106]), col="darkgreen", lwd=0.8, 
+                 lty="dashed");    # can be improved, from the arguments?
+          abline(h=ACTION[[1]][1,5,1]*(1-paras[106]), col="darkgreen", lwd=0.8, 
+                 lty="dashed");
+        }
         points(x=gens, y=abun, pch=20, type="l", lwd=3, col="black");
         par(new=TRUE);
         plot(x=gens, y=lnds, pch=20, type="l", lwd=3, col="orange", xlab = "",
              xlim=c(0, time_max), ylim = c(0, 100), xaxt="n", yaxt="n", 
-             ylab = "");
+             ylab = "", yaxs="i");
         axis(side=4, at=c(0, 25, 50, 75, 100));
         mtext("Mean % Yield", side = 4, line = 2.4);
         # ------------ Panel 4 (middle right);
@@ -428,7 +450,7 @@ case01plot <- function(res, obs, land1, land2, land3, agents, paras, ACTION,
         cell_number <- dim(land3)[1] * dim(land3)[2];
         plot(x=gens, y=gens, pch=20, type="n", lwd=2, ylim=c(0, 100),
              xlim=c(0,time_max), xlab="Time Step", ylab="Stake-holder % yield",
-             cex.lab=1.25);
+             cex.lab=1.25, yaxs="i");
         stake_colors <- topo.colors( dim(age_t)[1] );
         for(stakeholder in 1:dim(ages)[2]){
             max_yield   <- sum(land3 == stakeholder);
@@ -451,7 +473,7 @@ case01plot <- function(res, obs, land1, land2, land3, agents, paras, ACTION,
         y_upper_limit <- max_cost + (0.25 * max_cost);
         plot(x=gens, y=gens, pch=20, type="n", lwd=2, ylim=c(0, y_upper_limit),
              xlim=c(0,time_max), xlab="Time Step", ylab="Cost of actions",
-             cex.lab=1.25);
+             cex.lab=1.25, yaxs="i");
         if(paras[89] == 1){
             points(x=gens, y=res_costs[,1], type="l", col=cols[1], lwd=2);
         }
@@ -489,7 +511,7 @@ case01plot <- function(res, obs, land1, land2, land3, agents, paras, ACTION,
         y_upper_limit <- max_action + (0.25 * max_action);
         plot(x=gens, y=gens, pch=20, type="n", lwd=2, ylim=c(0, y_upper_limit),
              xlim=c(0,time_max), xlab="Time Step", ylab="Actions made",
-             cex.lab=1.25);
+             cex.lab=1.25, yaxs="i");
         if(paras[89] == 1){
             points(x=gens, y=res_acts[,1], type="l", col=cols[1], lwd=2);
         }
@@ -525,13 +547,7 @@ case01plot <- function(res, obs, land1, land2, land3, agents, paras, ACTION,
 #'
 #' Produce six panels on a plot showing resource distribution, owned land, resource dynamics and estimates, stake-holder yield, and action costs and actions made. 
 #' 
-#'@param res The resources array produced by the resource function within GMSE
-#'@param obs The array of resource observations from the observation model, used to estimate abundance of resources
-#'@param land The full list showing all layers of the landscape in each time step of GMSE
-#'@param agents The array of agents produced in the main gmse() function
-#'@param paras The array of parameters that hold global and dynamic parameter values used by GMSE
-#'@param ACTION A three dimensional array of agent (manager and stakeholder) actions
-#'@param COST A three dimensional array of cost values for agent (manager and stakeholder) actions
+#'@param sim_results Output from gmse to be plotted.
 #'@importFrom grDevices topo.colors
 #'@importFrom graphics abline axis image mtext par plot points polygon legend
 #'@importFrom graphics text
@@ -539,12 +555,18 @@ case01plot <- function(res, obs, land1, land2, land3, agents, paras, ACTION,
 #'@return This function plots the dynamics of GMSE resource, observation, managemer, and user models in six separate sub-panels. (1) Upper left panel: Shows the locations of resources on the landscape (black dots); landscape terrain is also shown in brown, but at the moment, this is only cosmetic and does not reflect anything occurring in the model. (2) Upper right panel: Shows ownership of land by agents; land is divided proportional based on parameters set in gmse() and colours correspond with other subplots. If agent utilities and actions are restricted to land (`land_ownership` in the gmse() function), then this gives some idea of where actions are being performed and where resources are affecting the landscape. (3) Middle left panel: Shows the actual population abundance (black solid line) and the population abundance estimated by the manager (blue solid line; shading indicates 95 percent confidence intervals) over time. The dotted red line shows the resource carrying capacity (death-based) and the dotted blue line shows the target for resource abundance as set in the gmse() function; the orange line shows the total percent yield of the landscape (i.e., 100 percent means that resources have not decreased yield at all, 0 percent means that resources have completely destroyed all yield). (4) Middle right panel: Shows the raw landscape yield for each stakeholder (can be ignored if `land_ownership` is FALSE) over time; colours correspond to land ownership shown in the upper right panel. (5) Lower left panel: The cost of stakeholders performing actions over time, as set by the manager. (6) Lower right panel: The total number of actions performed by all stakeholders over time.
 #'@examples
 #'\dontrun{
-#'plot_gmse_results(res = sim$resource, obs = sim$observation, land = sim$land, 
-#'sim$agents, sim$paras, ACTION = sim$action, COST = sim$cost, 
-#'observe_type = 0);
+#'plot_gmse_results(sim_results = sim);
 #'}
 #'@export
-plot_gmse_results <- function(res, obs, land, agents, paras, ACTION, COST){
+plot_gmse_results <- function(sim_results){
+    
+    res    <- sim_results$resource;
+    obs    <- sim_results$observation;
+    land   <- sim_results$land;
+    agents <- sim_results$agents;
+    paras  <- sim_results$paras;
+    ACTION <- sim_results$action;
+    COST   <- sim_results$cost;
     
     para_vec <- paras[1,]
     
@@ -560,7 +582,7 @@ plot_gmse_results <- function(res, obs, land, agents, paras, ACTION, COST){
         land3 <- land2[[i]][,,3];
     }
     
-    max_time <- length(res) - 1;
+    max_time <- length(res);
         
     gens <- NULL;
     abun <- NULL;
@@ -571,7 +593,7 @@ plot_gmse_results <- function(res, obs, land, agents, paras, ACTION, COST){
     ages <- NULL;
     stky <- NULL;
     land_cols <- c("#F2F2F2FF", "#ECB176FF", "#000000"); 
-    cols      <- c("green", "indianred1", "indianred3", "deepskyblue1",
+    cols      <- c("green", "firebrick4", "firebrick1", "deepskyblue1",
                    "deepskyblue2");
     
     case  <- para_vec[9];
@@ -600,11 +622,13 @@ plot_gmse_results <- function(res, obs, land, agents, paras, ACTION, COST){
         }
     }
     
-    minK <- min(para_vec[6:7]);
+    ymaxi <- max(paras[,33]) + (0.1 * (max(paras[,33])));
+    if(ymaxi < para_vec[7] & para_vec[117] == 0 & para_vec[118] == 0){
+        ymaxi <- para_vec[7] + (0.1 * para_vec[7]);
+    }
     
-    ymaxi    <- minK + (minK * (1 + res[[1]][1,10])); # Add for birth rate
     time_max <- length(res);
-    for(i in 1:(time_max-1)){
+    for(i in 1:(time_max)){
         res_t    <- res[[i]];
         obs_t    <- obs[[i]];
         lnd_t    <- land2[[i]][,,2] * 100;
@@ -659,23 +683,31 @@ plot_gmse_results <- function(res, obs, land, agents, paras, ACTION, COST){
     par(mar = c(4, 5, 1, 5));
     plot(x = gens, y = abun, pch = 20, type="l", lwd = 2, ylim = c(0, ymaxi),
          xlim=c(0, time_max), xlab = "Time Step", ylab = "Abundance",
-         cex.lab=1.25);
+         cex.lab=1.25, yaxs="i");
     if(case == 0 | case == 1){
         polygon(y = c(lci,rev(uci)), x = c(gens, rev(gens)), border = NA,
                 col="lightblue");
         points(x = gens, y = est, pch = 20, type = "l", lwd = 2, col = "cyan4");
     }else{
-        points(x = gens, y = est[-time_max], pch = 20, type = "l", lwd = 2, 
+        points(x = gens, y = est, pch = 20, type = "l", lwd = 2, 
                col = "cyan4");
     }
-    abline(h = para_vec[7], col = "red", lwd = 0.8, lty = "dashed");
+    if(para_vec[5] > 1){
+        abline(h = para_vec[7], col = "red", lwd = 0.8, lty = "dashed");
+    }
     abline(h = ACTION[[1]][1,5,1], col = topo.colors(1), lwd = 0.8, 
            lty = "dashed");
+    if (para_vec[106] > 0) {
+      abline(h=ACTION[[1]][1,5,1]*(1+para_vec[106]), col="darkgreen", lwd=0.8, 
+             lty="dashed");    # can be improved, from the arguments?
+      abline(h=ACTION[[1]][1,5,1]*(1-para_vec[106]), col="darkgreen", lwd=0.8, 
+             lty="dashed");
+    }
     points(x = gens, y = abun, pch = 20, type = "l", lwd = 3, col = "black");
     par(new = TRUE);
     plot(x = gens, y = lnds, pch = 20, type = "l", lwd = 3, col = "orange", 
          xlab = "", xlim = c(0, time_max), ylim = c(0, 100), xaxt="n", yaxt="n", 
-         ylab = "");
+         ylab = "", yaxs="i");
     axis(side = 4, at = c(0, 25, 50, 75, 100));
     mtext("Mean % Yield", side = 4, line = 2.4);
     # ------------ Panel 4 (middle right);
@@ -683,7 +715,7 @@ plot_gmse_results <- function(res, obs, land, agents, paras, ACTION, COST){
     cell_number <- dim(land3)[1] * dim(land3)[2];
     plot(x = gens, y = gens, pch = 20, type = "n", lwd = 2, ylim = c(0, 100),
          xlim = c(0, time_max), xlab = "Time Step", 
-         ylab = "Stake-holder % yield", cex.lab = 1.25);
+         ylab = "Stake-holder % yield", cex.lab = 1.25, yaxs="i");
     stake_colors <- topo.colors( dim(age_t)[1] );
     if(para_vec[104] > 0){
         for(stakeholder in 1:dim(ages)[2]){
@@ -704,7 +736,7 @@ plot_gmse_results <- function(res, obs, land, agents, paras, ACTION, COST){
     y_upper_limit <- max_cost + (0.25 * max_cost);
     plot(x = gens, y = gens, pch = 20, type = "n", lwd = 2, 
          ylim = c(0, y_upper_limit), xlim = c(0, time_max), xlab = "Time Step", 
-         ylab = "Cost of actions", cex.lab = 1.25);
+         ylab = "Cost of actions", cex.lab = 1.25, yaxs="i");
     if(para_vec[89] == 1){
         points(x = gens, y = res_costs[,1], type = "l", col = cols[1], lwd = 2);
     }
@@ -743,7 +775,7 @@ plot_gmse_results <- function(res, obs, land, agents, paras, ACTION, COST){
     y_upper_limit <- max_action + (0.25 * max_action);
     plot(x = gens, y = gens, pch = 20, type = "n", lwd = 2, 
          ylim = c(0, y_upper_limit), xlim = c(0, time_max), xlab = "Time Step", 
-         ylab = "Actions made", cex.lab = 1.25);
+         ylab = "Actions made", cex.lab = 1.25, yaxs="i");
     if(para_vec[89] == 1){
         points(x = gens, y = res_acts[,1], type = "l", col = cols[1], lwd = 2);
     }
@@ -776,22 +808,24 @@ plot_gmse_results <- function(res, obs, land, agents, paras, ACTION, COST){
 #'
 #' Produce a five panel plot in which each panel compares the permissiveness of each action (scaring, culling, etc.) from the manager with the effort put into each action by individual users.
 #' 
-#'@param agents The array of agents produced in the main gmse() function
-#'@param paras The array of parameters that hold global and dynamic parameter values used by GMSE
-#'@param ACTION A three dimensional array of agent (manager and stakeholder) actions
-#'@param COST A three dimensional array of cost values for agent (manager and stakeholder) actions
+#'@param sim_results Output from gmse to be plotted.
 #'@importFrom grDevices topo.colors
 #'@importFrom graphics abline axis image mtext par plot points polygon legend
 #'@importFrom stats rnorm rpois
 #'@return This function plots the permissiveness that each manager exhibits for each user action (scaring, culling, etc.) and the effort that each individual user puts into each action over time. On the left axis, permissiveness is calculated as 100 minus the percent of the manager's budget put into increasing the cost of a particular action, so, e.g., if a manager puts all of their effort into increasing the cost of culling, then permissiveness of culling is 0; if they put none of their effort into increasing the cost of culling, then permissiveness of culling is 100. On the right axis, percentage of user action expended is the percent of a user's budget put into a particular action (note, these might not add up to 100 because users are not forced to use their entire budget). Coloured lines that are above black lines could potentially (cautiously) be interpreted as conflict between managers and users.
 #'@examples
 #'\dontrun{
-#'plot_gmse_effort(sim$agents, sim$paras, ACTION = sim$action, COST = sim$cost);
+#'plot_gmse_effort(sim_results = sim);
 #'}
 #'@export
-plot_gmse_effort <- function(agents, paras, ACTION, COST){
+plot_gmse_effort <- function(sim_results){
     
-    cols      <- c("green", "indianred1", "indianred3", "deepskyblue1",
+    agents <- sim_results$agents;
+    paras  <- sim_results$paras;
+    ACTION <- sim_results$action;
+    COST   <- sim_results$cost;
+    
+    cols      <- c("green", "firebrick1", "firebrick4", "deepskyblue1",
                    "deepskyblue2");
     
     users    <- dim(agents[[1]])[1];
@@ -885,7 +919,11 @@ plot_gmse_effort <- function(agents, paras, ACTION, COST){
     
     par(mfrow = c(5, 1), mar = c(0, 0, 0, 0), oma = c(6, 6, 4, 6));
     y1 <- 100;
-    y2 <- y1 * 1.2
+    y2 <- 130;
+    lcex  <- 1.5
+    if(max_time < 40){
+        lcex <- 1 + lcex * (max_time / 100);
+    }
     #---- Scaring
     if(para_vec[89] == 1){
         plot(x = 1:max_time, y = 100 - scar_eff[,1], type = "l", lwd = 2, 
@@ -900,19 +938,19 @@ plot_gmse_effort <- function(agents, paras, ACTION, COST){
                    lwd = 1, col = cols[1]);
         }
         axis(side = 4, at = c(50, 100),  labels = c(50, 100), cex.axis = 1.5);
-        legend(x = 1, y = y2 + y2*0.1, fill = cols[1:5], horiz = TRUE,
+        legend(x = 1, y = 135, fill = cols[1:5], horiz = TRUE,
                legend = c("scaring", "culling", "castration", "feeding", 
-                          "helping"), bty = "n", cex = 1.5);
-        abline(h = y1 + y1*0.1, lwd = 2);
+                          "helping"), bty = "n", cex = lcex);
+        abline(h = 105, lwd = 2);
     }else{
         plot(x = 1:max_time, y = scar_eff[,1], type = "n", xaxt= "n", 
-             yaxt = "n", ylim = c(0, 110));
-        text(x = 0, y = 90, cex = 2, labels = "No scaring allowed",
+             yaxt = "n", ylim = c(0, y2));
+        text(x = 2, y = 90, cex = 2, labels = "No scaring allowed",
              pos = 4);
-        abline(h = 100, lwd = 2);
-        legend(x = 1, y = 119, fill = cols[1:5], horiz = TRUE,
+        abline(h = 105, lwd = 2);
+        legend(x = 1, y = 135, fill = cols[1:5], horiz = TRUE,
                legend = c("scaring", "culling", "castration", "feeding", 
-                          "helping"), bty = "n", cex = 1.5);
+                          "helping"), bty = "n", cex = lcex);
     }
     #---- Culling
     if(para_vec[90] == 1){
@@ -930,7 +968,7 @@ plot_gmse_effort <- function(agents, paras, ACTION, COST){
     }else{
         plot(x = 1:max_time, y = cull_act[,1], type = "n", xaxt= "n", 
              yaxt = "n", ylim = c(0, 100));
-        text(x = 0, y = 90, cex = 2, labels = "No culling allowed",
+        text(x = 2, y = 90, cex = 2, labels = "No culling allowed",
              pos = 4);
     }
     #---- Castrating
@@ -949,7 +987,7 @@ plot_gmse_effort <- function(agents, paras, ACTION, COST){
     }else{
         plot(x = 1:max_time, y = cast_act[,1], type = "n", xaxt= "n", 
              yaxt = "n", ylim = c(0, 100));
-        text(x = 0, y = 90, cex = 2, labels = "No castration allowed",
+        text(x = 2, y = 90, cex = 2, labels = "No castration allowed",
              pos = 4);
     }
     #---- Axes labels
@@ -973,14 +1011,14 @@ plot_gmse_effort <- function(agents, paras, ACTION, COST){
     }else{
         plot(x = 1:max_time, y = feed_act[,1], type = "n", xaxt= "n", 
              yaxt = "n", ylim = c(0, 100));
-        text(x = 0, y = 90, cex = 2, labels = "No feeding allowed",
+        text(x = 2, y = 90, cex = 2, labels = "No feeding allowed",
              pos = 4);
     }
     #---- Helping
     if(para_vec[93] == 1){
         plot(x = 1:max_time, y = 100 - help_eff[,1], type = "l", lwd = 2, 
              cex.axis = 1.5, xaxt = "n", ylim = c(0, y1), yaxt = "n");
-        axis(side = 2, at = c(50, 100), labels = c(50, 100), cex.axis = 1.5);
+        axis(side = 2, at = c(50, y2), labels = c(50, 100), cex.axis = 1.5);
         par(new = TRUE);
         plot(x = 1:max_time, y = help_eff[,2], type = "n", lwd = 2, 
              ylim = c(0, y1), xaxt="n", yaxt="n", cex.axis = 1.5);
@@ -992,11 +1030,8 @@ plot_gmse_effort <- function(agents, paras, ACTION, COST){
     }else{
         plot(x = 1:max_time, y = help_act[,1], type = "n", cex.axis = 1.5,
              yaxt = "n", ylim = c(0, 100));
-        text(x = 0, y = 90, cex = 2, labels = "No helping offspring allowed",
+        text(x = 2, y = 90, cex = 2, labels = "No helping offspring allowed",
              pos = 4);
     }    
     mtext("Time step", side = 1, line = 3.5, cex = 1.5, col = "black");
 }
-
-
-

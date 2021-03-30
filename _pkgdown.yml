@@ -1,0 +1,24 @@
+reference:
+  - title: Simulation functions
+    contents:
+    - gmse
+    - gmse_apply
+    - gmse_gui
+    - gmse_replicates
+
+  - title: Summary functions
+    contents:
+    - gmse_summary
+    - gmse_table
+
+  - title: Plotting functions
+    contents:
+    - plot_gmse_results
+    - plot_gmse_effort
+
+navbar:
+  right:
+    - text: "Lab notebook"
+      href: https://confoobio.github.io/gmse/notebook/gmse_notes.html
+    - icon: fa-github
+      href: https://github.com/confoobio/GMSE
